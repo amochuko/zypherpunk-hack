@@ -61,3 +61,17 @@ pub struct PCZT {
 }
 
 
+// -- helpers
+
+fn pczt_form_json(s:&str) -> Result<PCZT>{
+    serde_json::from_str(s).map_err(|e| Error::from_reason(format!("pczt parse error: {}", e)))
+}
+
+fn pczt_to_json(pczt: &PCZT) -> Result<String> {
+  serde_json::to_string(pczt).map_err(|e| Error::from_reason(format!("pczt serialize error: {}", e)))
+}
+
+// Convert hex string -> Vec<u8> with error mapping
+fn hex_decode(s: &str) -> Result<Vec<u8>> {
+  hex::decode(s).map_err(|e| Error::from_reason(format!("hex decode error: {}", e)))
+}
