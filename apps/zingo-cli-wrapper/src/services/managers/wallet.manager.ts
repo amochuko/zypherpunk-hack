@@ -20,6 +20,13 @@ export class WalletManager implements IWalletService {
     this.adapter = USE_MOCK ? new MockAdapter() : new WalletAdaptor(DATA_DIR);
   }
 
+  createWalletFromSeed(opts: {
+    id: string;
+    seed: string;
+  }): Promise<WalletInfo> {
+    throw new Error("Method not implemented.");
+  }
+
   async deleteWatchWallet(walletId: string): Promise<void> {
     await this.adapter.deleteWatchWallet(walletId);
   }
@@ -42,10 +49,12 @@ export class WalletManager implements IWalletService {
   ): Promise<{ seedPhrase: string; birthday: number; [index: string]: any }> {
     throw new Error("Method not implemented.");
   }
-  transactions(walletId?: string): Promise<{ [index: string]: any }> {
-    throw new Error("Method not implemented.");
+
+  async transactions(walletId?: string): Promise<{ [index: string]: any }> {
+    return await this.adapter.transactions(walletId);
   }
-  birthday(walletId?: string): Promise<number> {
+
+  async birthday(walletId?: string): Promise<number> {
     throw new Error("Method not implemented.");
   }
   exportUfvk(walletId?: string): Promise<{ ufvk: string; birthday: number }> {
