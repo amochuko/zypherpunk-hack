@@ -23,7 +23,8 @@ import { spawnCli } from "./spawn-cli";
 // adjust args inside spawnCli calls below if needed.
 //
 export class WalletAdaptor implements IWalletService {
-  constructor(private dataDir = config.ZINGO_DATA_DIR) {}
+  constructor(private dataDir = config.WALLET_DATA_DIR) {}
+
   listTransactions(walletId: string): Promise<any[]> {
     throw new Error("Method not implemented.");
   }
@@ -100,16 +101,19 @@ export class WalletAdaptor implements IWalletService {
     throw new Error("Method not implemented.");
   }
 
-  async createWallet(opts: { id?: string }): Promise<WalletInfo> {
+  async createWallet(opts: {
+    id?: string;
+    name?: string;
+  }): Promise<WalletInfo> {
     const id = opts.id ?? uuidv4();
     const walletDir = this.walletDir(id);
 
     // TODO: Review this later
     // if (await folderExists(walletDir)) {
-      //   // Decide:
-      //   // 1. throw an error (wallet with this ID already exists)
-      //   // 2. return the existing wallet info
-      //   // 3. allow optional overwrite with explicit flag
+    //   // Decide:
+    //   // 1. throw an error (wallet with this ID already exists)
+    //   // 2. return the existing wallet info
+    //   // 3. allow optional overwrite with explicit flag
     //   throw new Error(`Wallet with id "${id}" already exists.`);
     // }
 
