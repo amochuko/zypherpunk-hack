@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const config = {
+  API_KEY: String(process.env.API_KEY),
   LOG_LEVEL: "info",
   USE_MOCK_ADAPTER: Boolean(process.env.USE_MOCK_ADAPTER),
   port: process.env.PORT,
