@@ -23,6 +23,15 @@ export type WatchWallet = {
   persisted?: boolean; // whether wallet contents are encrypted on-disk
 };
 
+export type TxEntry = {
+  txid: string;
+  block_height?: number | null;
+  timestamp?: number | null; // unix seconds
+  amount: number; // in zatoshi/atomic units (keep raw)
+  direction: "in" | "out" | "internal";
+  memo?: string | null;
+  raw?: any; // original parsed entry
+};
 /**
  * WalletAdaptor
  *
@@ -35,8 +44,35 @@ export type WatchWallet = {
 export class WalletAdaptor implements IWalletService {
   constructor(private dataDir = config.WALLET_DATA_DIR) {}
 
-  listTransactions(walletId: string): Promise<any[]> {
-    throw new Error("Method not implemented.");
+  async transactions(walletId: string): Promise<any[]> {
+    const walletDir = this.walletDir(walletId!);
+    const raw = await spawnCli(["--data-dir", walletDir, "transactions"]);
+
+    try {
+      const parsed = await parseCliJson<any>(raw);
+      if (!Array.isArray(parsed)) return [];
+
+      const out: TxEntry[] = parsed.map((t: any) => {
+        const amount =
+          typeof t.amount === "number" ? t.amount : Number(t.amount ?? 0);
+        const direction: TxEntry["direction"] =
+          t.direction ?? (amount >= 0 ? "in" : "out");
+        return {
+          txid: t.txid ?? t.hash ?? t.transaction_id ?? "",
+          block_height: t.block_height ?? t.height ?? null,
+          timestamp: t.timestamp ? Number(t.timestamp) : null,
+          amount,
+          direction,
+          memo: t.memo ?? null,
+          raw: t,
+        } as TxEntry;
+      });
+
+      return out;
+    } catch (err) {
+      console.error("walletKind", err);
+      throw err;
+    }
   }
 
   private walletDir(id: string) {
@@ -83,28 +119,6 @@ export class WalletAdaptor implements IWalletService {
     walletId?: string
   ): Promise<{ seedPhrase: string; birthday: number; [index: string]: any }> {
     throw new Error("Method not implemented.");
-  }
-
-  async transactions(walletId?: string): Promise<{ [index: string]: any }> {
-    const walletDir = this.walletDir(walletId!);
-
-    const out = await spawnCli(["--data-dir", walletDir, "transactions"]);
-
-    try {
-      const parsed = JSON.parse(out);
-      if (Array.isArray(parsed)) return parsed;
-      if (parsed.transactions) return parsed.transactions;
-
-      return [];
-    } catch (err) {
-      // If output is raw lines, try to split
-      const lines = out
-        .trim()
-        .split("\n")
-        .map((l: any) => l.trim())
-        .filter(Boolean);
-      return lines;
-    }
   }
 
   birthday(walletId?: string): Promise<number> {
