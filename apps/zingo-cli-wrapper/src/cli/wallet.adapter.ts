@@ -9,6 +9,7 @@ import {
   WalletInfo,
   WalletKind,
 } from "../modules/wallets/interface/wallet.interface";
+import { parseCliJson } from "../utils/parseCliJson";
 import { spawnCli } from "./spawn-cli";
 
 /**
@@ -47,7 +48,7 @@ export class WalletAdaptor implements IWalletService {
     address_kind: "transparent" | "sapling" | "unified";
     [index: string]: any;
   }> {
-    const wallertDir = this.walletDir(walletId!);
+    const walletDir = this.walletDir(walletId!);
 
     const out = await spawnCli(["get-address"]);
 
@@ -87,7 +88,7 @@ export class WalletAdaptor implements IWalletService {
       return lines;
     }
   }
-  
+
   birthday(walletId?: string): Promise<number> {
     throw new Error("Method not implemented.");
   }
@@ -98,40 +99,70 @@ export class WalletAdaptor implements IWalletService {
     throw new Error("Method not implemented.");
   }
 
-  async createWallet(opts: {
-    id: string;
-    seed?: string;
-    name?: string;
-  }): Promise<WalletInfo> {
+  async createWallet(opts: { id?: string }): Promise<WalletInfo> {
+    const id = opts.id ?? uuidv4();
+    const walletDir = this.walletDir(id);
+
+    await fs.mkdir(walletDir, { recursive: true });
+
+    // Trigger zingo-cli to initialize a wallet in that data-dir.
+    // Use global flags before the command: ["--data-dir", walletDir, "--nosync", "addresses"]
+    // --nosync prevents automatic background sync startup messages.
+    // The CLI will auto-generate a seed and wallet files when it needs to.
+    await spawnCli(["--data-dir", walletDir, "--nosyc", "addresses"]);
+
+    // Now read addresses (again with --nosync to avoid sync logs)
+    const raw = await spawnCli(["--nosync", "addresses"]);
+
+    const parsed = await parseCliJson<any>(raw);
+
+    // parsed is expected to be an array of address objects (see your sample).
+    // Choose the best encoded_address to treat as "unifiedAddress".
+    // In many zingo outputs encoded_address is the unified address; pick first item by default.
+    let ua: string | undefined;
+
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Prefer an address that has orchard/sapling flags (your app's policy)
+      const preferred = parsed.find((a: any) => a.has_orchard || a.has_sapling);
+      ua = preferred?.encoded_address ?? parsed[0].encoded_address;
+    } else if (parsed?.unified_address) {
+      ua = parsed.unified_address;
+    } else if (typeof parsed === "string") {
+      ua = parsed;
+    }
+
+    if (!ua) {
+      throw new Error(
+        "Could not determine unified address from zingo-cli output."
+      );
+    }
+
+    return { id, path: walletDir, unifiedAddress: ua };
+  }
+
+  async createWalletFromViewkey(opts: { id?: string }): Promise<WalletInfo> {
     //
     const id = opts.id ?? uuidv4();
-    const wallertDir = this.walletDir(id);
+    const walletDir = this.walletDir(id);
+    await fs.mkdir(walletDir, { recursive: true });
 
-    await fs.mkdir(wallertDir, { recursive: true });
+    await spawnCli([
+      "wallet",
+      "create",
+      "--seed",
+      "--data-dir",
+      walletDir,
+      "--json",
+    ]);
 
-    // If seed provided, create or restore wallet, else create new seed.
-    // NOTE: CLI options below are plausible; verify exact flags with zingo-cli --help.
-    const seed = opts.seed ?? "";
-    if (seed) {
-      await spawnCli([
-        "wallet",
-        "create",
-        "--seed",
-        seed,
-        "--data-dir",
-        wallertDir,
-        "--json",
-      ]);
-    } else {
-      await spawnCli(["wallet", "create", "--data-dir", wallertDir, "--json"]);
-    }
+    await spawnCli(["wallet", "create", "--data-dir", walletDir, "--json"]);
 
     // get addreess
     const ua = await spawnCli([
       "wallet",
       "get-address",
       "--data-url",
-      wallertDir,
+      walletDir,
       "--json",
     ]);
 
@@ -146,21 +177,69 @@ export class WalletAdaptor implements IWalletService {
         uaTrim = parsed;
       }
 
-      return { id, path: wallertDir, unifiedAddress: uaTrim };
+      return { id, path: walletDir, unifiedAddress: uaTrim };
     } catch (err) {
       console.error(err);
       throw err;
     }
   }
 
+  async createWalletFromSeed(opts: {
+    id?: string;
+    seed: string;
+  }): Promise<WalletInfo> {
+    //
+    const id = opts.id ?? uuidv4();
+    const walletDir = this.walletDir(id);
+    const seedArr = opts.seed.split(" ").length;
+    await fs.mkdir(walletDir, { recursive: true });
+
+    await spawnCli(["--data-dir", walletDir, "--nosync", "--seed", opts.seed]);
+
+    // // Now read addresses (again with --nosync to avoid sync logs)
+    // const raw = await spawnCli([
+    //   "--data-dir",
+    //   walletDir,
+    //   "--nosync",
+    //   "addresses",
+    // ]);
+
+    // Now read addresses (again with --nosync to avoid sync logs)
+    const raw = await spawnCli(["--nosync", "addresses"]);
+
+    const parsed = await parseCliJson<any>(raw);
+
+    // parsed is expected to be an array of address objects (see your sample).
+    // Choose the best encoded_address to treat as "unifiedAddress".
+    // In many zingo outputs encoded_address is the unified address; pick first item by default.
+    let ua: string | undefined;
+
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Prefer an address that has orchard/sapling flags (your app's policy)
+      const preferred = parsed.find((a: any) => a.has_orchard || a.has_sapling);
+      ua = preferred?.encoded_address ?? parsed[0].encoded_address;
+    } else if (parsed?.unified_address) {
+      ua = parsed.unified_address;
+    } else if (typeof parsed === "string") {
+      ua = parsed;
+    }
+
+    if (!ua) {
+      throw new Error(
+        "Could not determine unified address from zingo-cli output."
+      );
+    }
+
+    return { id, path: walletDir, unifiedAddress: ua };
+  }
+
   async createUnifiedAddress(walletId: string): Promise<CreateAddressReturn> {
     // spawn zingo-cli get-address
-    const wallertDir = this.walletDir(walletId);
+    const walletDir = this.walletDir(walletId);
     const out = await spawnCli([
-      "wallet",
       "get-address",
       "--data-dir",
-      wallertDir,
+      walletDir,
       "--json",
     ]);
 
@@ -177,12 +256,12 @@ export class WalletAdaptor implements IWalletService {
     walletId: string
   ): Promise<CreateAddressReturn> {
     // spawn zingo-cli new_taddress
-    const wallertDir = this.walletDir(walletId);
+    const walletDir = this.walletDir(walletId);
     const out = await spawnCli([
       "wallet",
       "new_taddress",
       "--data-dir",
-      wallertDir,
+      walletDir,
       "--json",
     ]);
 
@@ -196,13 +275,13 @@ export class WalletAdaptor implements IWalletService {
   }
 
   async getBalance(walletId: string): Promise<Balance> {
-    const wallertDir = this.walletDir(walletId);
+    const walletDir = this.walletDir(walletId);
 
     const out = await spawnCli([
       "wallet",
       "balance",
       "--data-dir",
-      wallertDir,
+      walletDir,
       "--json",
     ]);
 
