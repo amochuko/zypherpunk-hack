@@ -4,6 +4,16 @@ export interface WalletInfo {
   unifiedAddress?: string;
 }
 
+export type WatchWallet = {
+  id: string;
+  walletDir: string;
+  ufvk: string;
+  ufvkNotPersisted?: true; // marker that UFVK not stored on disk
+  birthday: number; // block height
+  unifiedAddress?: string;
+  persisted?: boolean; // whether wallet contents are encrypted on-disk
+};
+
 export type CreateAddressReturn = {
   account: number;
   address_index: number;
@@ -52,7 +62,7 @@ export interface IWalletService {
     id?: string;
     ufvk: string;
     birthday?: number;
-  }): Promise<void>;
+  }): Promise<WatchWallet>;
 
   //new_address oz - new_address that recieves orchard and sapling
   createUnifiedAddress(
