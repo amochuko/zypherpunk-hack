@@ -20,6 +20,10 @@ export class WalletManager implements IWalletService {
     this.adapter = USE_MOCK ? new MockAdapter() : new WalletAdaptor(DATA_DIR);
   }
 
+  async deleteWatchWallet(walletId: string): Promise<void> {
+    await this.adapter.deleteWatchWallet(walletId);
+  }
+
   walletKind(walletId?: string): Promise<WalletKind> {
     return this.adapter.walletKind();
   }
