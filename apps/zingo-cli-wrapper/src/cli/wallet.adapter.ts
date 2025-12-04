@@ -133,6 +133,12 @@ export class WalletAdaptor implements IWalletService {
     throw new Error("Method not implemented.");
   }
 
+  async listAddresses(walletId?: string): Promise<any> {
+    const walletDir = this.walletDir(walletId!);
+
+    return await this.getAddresses(walletDir);
+  }
+
   async createWallet(opts: { id?: string }): Promise<WalletInfo> {
     const id = opts.id ?? uuidv4();
     const walletDir = this.walletDir(id);
