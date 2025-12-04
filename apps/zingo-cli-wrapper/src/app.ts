@@ -4,6 +4,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import path from "node:path";
+import { config } from "./config";
 
 const app = express();
 
@@ -16,6 +17,18 @@ app.use(
     max: 100,
   })
 );
+
+// Simple API key middleware (optional)
+app.use((req, res, next) => {
+  if (!config.API_KEY) return next();
+
+  const key = req.headers["x-api-key"] || req.query.api_key;
+  if (key === config.API_KEY) {
+    return next();
+  }
+
+  return res.status(401).json({ error: "Invalid api key" });
+});
 
 const isDev = process.env.NODE_ENV !== "production";
 const baseDir = isDev ? "src" : "dist";
