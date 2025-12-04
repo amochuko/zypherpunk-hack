@@ -56,7 +56,6 @@ export interface IWalletService {
   ): Promise<CreateAddressReturn>;
   createTransparentAddress(walletId: string): Promise<CreateAddressReturn>;
   getBalance(walletId: string): Promise<Balance>;
-  listTransactions(walletId: string): Promise<any[]>;
   parseAaddress(walletId: string): Promise<{
     status: boolean;
     chain_name: string;
