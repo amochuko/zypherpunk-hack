@@ -92,4 +92,6 @@ export interface IWalletService {
 
   // wallet_kind
   walletKind(walletId?: string): Promise<WalletKind>;
+  // delete watch wallet 
+  deleteWatchWallet(walletId: string): Promise<void>;
 }
