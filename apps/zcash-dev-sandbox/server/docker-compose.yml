@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  # OPTIONAL - not required to use the prototype.
+  # Running a full zcashd testnet node locally requires lots of disk & time.
+  # If you already have a testnet node / public RPC, point the app at it instead.
+  zcashd:
+    image: zecwallet/zcashd:latest   # example — replace with a trusted testnet image or run zcashd natively
+    command: ["-testnet", "-rpcallowip=0.0.0.0/0", "-rpcbind=0.0.0.0", "-rpcuser=rpcuser", "-rpcpassword=rpcpass"]
+    ports:
+      - "18232:18232"  # RPC JSON port (testnet default)
+      - "18233:18233"  # P2P
+    volumes:
+      - zcash_data:/root/.zcash
+    restart: unless-stopped
+
+volumes:
+  zcash_data:
