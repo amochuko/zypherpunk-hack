@@ -1,0 +1,141 @@
+<!-- public/index.html -->
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Zcash Sandbox Playground</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+        }
+
+        button {
+            margin: 6px 0;
+            padding: 8px 12px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+        }
+
+        pre {
+            background: #f6f6f6;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Zcash Sandbox — Playground (Local Prototype)</h1>
+
+    <div class="card">
+        <h3>1. Generate address</h3>
+        <select id="addrType">
+            <option value="transparent">transparent</option>
+            <option value="shielded">shielded (may be unsupported)</option>
+        </select>
+        <br />
+        <button id="btnGen">Generate Address</button>
+        <div id="genResult"></div>
+    </div>
+
+    <div class="card">
+        <h3>2. Faucet (test funds)</h3>
+        <label>To address</label>
+        <input id="faucetTo" style="width:70%" placeholder="enter address" />
+        <label>Amount (ZEC)</label>
+        <input id="faucetAmount" style="width:120px" placeholder="0.1" />
+        <br />
+        <button id="btnFaucet">Request Faucet</button>
+        <div id="faucetResult"></div>
+    </div>
+
+    <div class="card">
+        <h3>3. Send (transparent)</h3>
+        <label>To</label>
+        <input id="sendTo" style="width:70%" />
+        <label>Amount</label>
+        <input id="sendAmt" style="width:120px" />
+        <br />
+        <button id="btnSend">Send via node wallet (sendtoaddress)</button>
+        <div id="sendResult"></div>
+    </div>
+
+    <div class="card">
+        <h3>Raw API / Health</h3>
+        <button id="btnHealth">Check Health</button>
+        <div id="health"></div>
+    </div>
+
+    <script>
+        const base = location.origin; // assumes api served from same origin
+        document.getElementById('btnGen').addEventListener('click', async () => {
+            const type = document.getElementById('addrType').value;
+            const resEl = document.getElementById('genResult');
+            resEl.textContent = "Working...";
+            try {
+                const resp = await fetch(base + '/generate_address', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type }) });
+                const data = await resp.json();
+                if (!resp.ok) throw data;
+                resEl.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                resEl.innerHTML = `<pre style="color:red">${JSON.stringify(err, null, 2)}</pre>`;
+            }
+        });
+
+        document.getElementById('btnFaucet').addEventListener('click', async () => {
+            const to = document.getElementById('faucetTo').value;
+            const amount = document.getElementById('faucetAmount').value || undefined;
+            const resEl = document.getElementById('faucetResult');
+            resEl.textContent = "Requesting faucet...";
+            try {
+                const resp = await fetch(base + '/faucet', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ address: to, amount: amount ? Number(amount) : undefined }) });
+                const data = await resp.json();
+                if (!resp.ok) throw data;
+                resEl.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                resEl.innerHTML = `<pre style="color:red">${JSON.stringify(err, null, 2)}</pre>`;
+            }
+        });
+
+        document.getElementById('btnSend').addEventListener('click', async () => {
+            const to = document.getElementById('sendTo').value;
+            const amount = Number(document.getElementById('sendAmt').value);
+            const resEl = document.getElementById('sendResult');
+            resEl.textContent = "Sending...";
+            try {
+                const resp = await fetch(base + '/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to, amount }) });
+                const data = await resp.json();
+                if (!resp.ok) throw data;
+                resEl.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                resEl.innerHTML = `<pre style="color:red">${JSON.stringify(err, null, 2)}</pre>`;
+            }
+        });
+
+        document.getElementById('btnHealth').addEventListener('click', async () => {
+            const el = document.getElementById('health');
+            try {
+                const r = await fetch(base + '/health');
+                const d = await r.json();
+                el.innerHTML = `<pre>${JSON.stringify(d, null, 2)}</pre>`;
+            } catch (e) {
+                el.innerHTML = `<pre style="color:red">${e.message}</pre>`;
+            }
+        });
+    </script>
+</body>
+
+</html>
