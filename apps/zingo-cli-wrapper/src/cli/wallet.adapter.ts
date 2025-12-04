@@ -8,20 +8,11 @@ import {
   IWalletService,
   WalletInfo,
   WalletKind,
+  WatchWallet,
 } from "../modules/wallets/interface/wallet.interface";
 import { dirExistsNotEmpty } from "../utils/dirExiastsNotEmpty";
 import { parseCliJson } from "../utils/parseCliJson";
 import { runCliForWallet } from "./spawn-cli";
-
-export type WatchWallet = {
-  id: string;
-  walletDir: string;
-  ufvk: string;
-  ufvkNotPersisted?: true; // marker that UFVK not stored on disk
-  birthday: number; // block height
-  unifiedAddress?: string;
-  persisted?: boolean; // whether wallet contents are encrypted on-disk
-};
 
 export type TxEntry = {
   txid: string;
@@ -183,7 +174,7 @@ export class WalletAdaptor implements IWalletService {
     id?: string;
     ufvk: string;
     birthday?: number;
-  }) {
+  }): Promise<WatchWallet> {
     //
     const id = opts.id ?? uuidv4();
     const walletDir = this.walletDir(id);
@@ -215,6 +206,9 @@ export class WalletAdaptor implements IWalletService {
       ufvk: opts.ufvk,
       unifiedAddress: ua,
     };
+
+    // path: string;
+    // unifiedAddress?: string;
 
     return watch;
   }
