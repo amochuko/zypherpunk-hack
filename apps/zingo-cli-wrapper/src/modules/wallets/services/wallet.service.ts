@@ -18,12 +18,19 @@ export class WalletService implements IWalletService {
     await this.wallet.deleteWatchWallet(walletId);
   }
 
-  async createWallet(opts: {
-    id: string;
-    seed?: string;
-    name?: string;
-  }): Promise<WalletInfo> {
+  async createWallet(opts: { id: string; name?: string }): Promise<WalletInfo> {
     const w = await this.wallet.createWallet({ name: opts.name });
+    return w;
+  }
+
+  async createWalletFromSeed(opts: {
+    id: string;
+    seed: string;
+  }): Promise<WalletInfo> {
+    const w = await this.wallet.createWalletFromSeed({
+      id: opts.id,
+      seed: opts.seed,
+    });
     return w;
   }
 
@@ -38,6 +45,7 @@ export class WalletService implements IWalletService {
   ): Promise<CreateAddressReturn> {
     throw new Error("Method not implemented.");
   }
+
   createTransparentAddress(walletId: string): Promise<CreateAddressReturn> {
     throw new Error("Method not implemented.");
   }
@@ -47,6 +55,7 @@ export class WalletService implements IWalletService {
   listTransactions(walletId: string): Promise<any[]> {
     throw new Error("Method not implemented.");
   }
+
   parseAaddress(walletId: string): Promise<{
     status: boolean;
     chain_name: string;
