@@ -11,7 +11,7 @@ import {
 } from "../modules/wallets/interface/wallet.interface";
 import { dirExistsNotEmpty } from "../utils/dirExiastsNotEmpty";
 import { parseCliJson } from "../utils/parseCliJson";
-import { spawnCli } from "./spawn-cli";
+import { runCliForWallet } from "./spawn-cli";
 
 export type WatchWallet = {
   id: string;
@@ -60,7 +60,10 @@ export class WalletAdaptor implements IWalletService {
 
   async transactions(walletId: string): Promise<any[]> {
     const walletDir = this.walletDir(walletId!);
-    const raw = await spawnCli(["--data-dir", walletDir, "transactions"]);
+
+    const raw = await runCliForWallet(walletDir, ["transactions"], {
+      nosync: true,
+    });
 
     try {
       const parsed = await parseCliJson<any>(raw);
@@ -84,7 +87,7 @@ export class WalletAdaptor implements IWalletService {
 
       return out;
     } catch (err) {
-      console.error("walletKind", err);
+      console.error("transactions", err);
       throw err;
     }
   }
@@ -95,7 +98,10 @@ export class WalletAdaptor implements IWalletService {
 
   async walletKind(walletId?: string): Promise<WalletKind> {
     const walletDir = this.walletDir(walletId!);
-    const out = await spawnCli(["--data-dir", walletDir, "wallet_kind"]);
+
+    const out = await runCliForWallet(walletDir, ["wallet_kind"], {
+      nosync: true,
+    });
 
     try {
       return JSON.parse(out);
@@ -105,20 +111,17 @@ export class WalletAdaptor implements IWalletService {
     }
   }
 
-  async parseAaddress(walletId?: string): Promise<{
+  // To determine/validate an address
+  async parseAaddress(walletId: string): Promise<{
     status: boolean;
     chain_name: string;
     address_kind: "transparent" | "sapling" | "unified";
     [index: string]: any;
   }> {
     const walletDir = this.walletDir(walletId!);
-
-    const out = await spawnCli([
-      "--data-dir",
-      walletDir,
-      "--nosync",
-      "get-address",
-    ]);
+    const out = await runCliForWallet(walletDir, ["parse_address", walletId], {
+      nosync: true,
+    });
 
     try {
       const parsed = JSON.parse(out);
@@ -168,11 +171,9 @@ export class WalletAdaptor implements IWalletService {
 
     await fs.mkdir(walletDir, { recursive: true });
 
-    // Trigger zingo-cli to initialize a wallet in that data-dir.
-    // Use global flags before the command: ["--data-dir", walletDir, "--nosync", "addresses"]
-    // --nosync prevents automatic background sync startup messages.
-    // The CLI will auto-generate a seed and wallet files when it needs to.
-    await spawnCli(["--data-dir", walletDir, "--nosync", "addresses"]);
+    await runCliForWallet(walletDir, ["addresses"], {
+      nosync: true,
+    });
 
     const ua = await this.getAddresses(walletDir);
     return { id, path: walletDir, unifiedAddress: ua };
@@ -199,18 +200,14 @@ export class WalletAdaptor implements IWalletService {
 
     const birthday = Number(opts.birthday ?? 0);
 
-    await spawnCli([
-      "--data-dir",
+    await runCliForWallet(
       walletDir,
-      "--nosync",
-      "--viewkey",
-      opts.ufvk,
-      "--birthday",
-      String(Math.max(0, birthday)),
-    ]);
+      ["--viewkey", opts.ufvk, "--birthday", String(Math.max(0, birthday))],
+      { nosync: true }
+    );
 
     const ua = await this.getAddresses(walletDir);
-    
+
     const watch: WatchWallet = {
       id,
       walletDir,
@@ -238,7 +235,9 @@ export class WalletAdaptor implements IWalletService {
 
     await fs.mkdir(walletDir, { recursive: true });
 
-    await spawnCli(["--data-dir", walletDir, "--nosync", "--seed", opts.seed]);
+    await runCliForWallet(walletDir, ["--seed", opts.seed], {
+      nosync: true,
+    });
 
     const ua = await this.getAddresses(walletDir);
 
@@ -246,14 +245,12 @@ export class WalletAdaptor implements IWalletService {
   }
 
   async createUnifiedAddress(walletId: string): Promise<CreateAddressReturn> {
-    // spawn zingo-cli get-address
+    // spawn zingo-cli new_address
     const walletDir = this.walletDir(walletId);
-    const out = await spawnCli([
-      "get-address",
-      "--data-dir",
-      walletDir,
-      "--json",
-    ]);
+
+    const out = await runCliForWallet(walletDir, ["new_address"], {
+      nosync: true,
+    });
 
     try {
       const parsed = JSON.parse(out);
@@ -269,13 +266,9 @@ export class WalletAdaptor implements IWalletService {
   ): Promise<CreateAddressReturn> {
     // spawn zingo-cli new_taddress
     const walletDir = this.walletDir(walletId);
-    const out = await spawnCli([
-      "wallet",
-      "new_taddress",
-      "--data-dir",
-      walletDir,
-      "--json",
-    ]);
+    const out = await runCliForWallet(walletDir, ["new_taddress"], {
+      nosync: true,
+    });
 
     try {
       const parsed = JSON.parse(out);
@@ -289,13 +282,9 @@ export class WalletAdaptor implements IWalletService {
   async getBalance(walletId: string): Promise<Balance> {
     const walletDir = this.walletDir(walletId);
 
-    const out = await spawnCli([
-      "wallet",
-      "balance",
-      "--data-dir",
-      walletDir,
-      "--json",
-    ]);
+    const out = await runCliForWallet(walletDir, ["balance"], {
+      nosync: true,
+    });
 
     try {
       const parsed = JSON.parse(out);
@@ -314,20 +303,15 @@ export class WalletAdaptor implements IWalletService {
   ): Promise<{ txid: string }> {
     const walletDir = this.walletDir(walletId);
 
-    const args = [
-      "wallet",
-      "send",
-      "--to",
-      to,
-      "--amount",
-      amount.toString(),
-      "--data-dir",
-      walletDir,
-      "--json",
-    ];
+    const args = ["send", "--to", to, "--amount", amount.toString()];
 
-    if (memo) args.push("--memo", memo);
-    const out = await spawnCli(args);
+    if (memo) {
+      args.push("--memo", memo);
+    }
+
+    const out = await runCliForWallet(walletDir, args, {
+      nosync: true,
+    });
 
     try {
       const parsed = JSON.parse(out);
@@ -342,13 +326,9 @@ export class WalletAdaptor implements IWalletService {
   }
 
   private async getAddresses(walletDir: string) {
-    // Now read addresses (again with --nosync to avoid sync logs)
-    const raw = await spawnCli([
-      "--data-dir",
-      walletDir,
-      "--nosync",
-      "addresses",
-    ]);
+    const raw = await runCliForWallet(walletDir, ["addresses"], {
+      nosync: true,
+    });
 
     const parsed = await parseCliJson<any>(raw);
 
