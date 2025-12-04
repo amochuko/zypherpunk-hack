@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { WalletManager } from "../../../services/managers/wallet.manager";
-import { WalletService } from "../services/wallet.service";
+import { walletService } from "../../../config";
 
 type CreateWalletResp = {
   walletId: string;
@@ -12,12 +11,25 @@ type ErrorResp = {
   error: string;
 };
 
-const walletService = new WalletService({
-  wallet: new WalletManager(),
-  USE_MOCK: false,
-});
-
 const walletController = {
+  transactions: async (
+    req: Request,
+    res: Response<CreateWalletResp | ErrorResp>,
+    next: NextFunction
+  ) => {
+    const name = req.body.name ?? "default";
+
+    try {
+      const w = await walletService.createWallet({ name, id: uuidv4() });
+
+      res.status(201).json({
+        walletId: w.id,
+        unified_address: String(w.unifiedAddress),
+      });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  },
   createWallet: async (
     req: Request,
     res: Response<CreateWalletResp | ErrorResp>,
