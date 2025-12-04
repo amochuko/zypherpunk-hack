@@ -9,6 +9,7 @@ import {
   WalletInfo,
   WalletKind,
 } from "../modules/wallets/interface/wallet.interface";
+import { folderExists } from "../utils/folderExists";
 import { parseCliJson } from "../utils/parseCliJson";
 import { spawnCli } from "./spawn-cli";
 
@@ -103,6 +104,15 @@ export class WalletAdaptor implements IWalletService {
     const id = opts.id ?? uuidv4();
     const walletDir = this.walletDir(id);
 
+    // TODO: Review this later
+    // if (await folderExists(walletDir)) {
+      //   // Decide:
+      //   // 1. throw an error (wallet with this ID already exists)
+      //   // 2. return the existing wallet info
+      //   // 3. allow optional overwrite with explicit flag
+    //   throw new Error(`Wallet with id "${id}" already exists.`);
+    // }
+
     await fs.mkdir(walletDir, { recursive: true });
 
     // Trigger zingo-cli to initialize a wallet in that data-dir.
@@ -190,8 +200,14 @@ export class WalletAdaptor implements IWalletService {
   }): Promise<WalletInfo> {
     //
     const id = opts.id ?? uuidv4();
+
+    const seedArr = opts.seed.split(" ");
+    if (seedArr.length != 24) {
+      throw new Error("Seed phrase is not complete!");
+    }
+
     const walletDir = this.walletDir(id);
-    const seedArr = opts.seed.split(" ").length;
+
     await fs.mkdir(walletDir, { recursive: true });
 
     await spawnCli(["--data-dir", walletDir, "--nosync", "--seed", opts.seed]);
