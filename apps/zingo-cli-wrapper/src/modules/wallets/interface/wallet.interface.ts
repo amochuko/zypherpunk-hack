@@ -43,11 +43,16 @@ export type WalletKind = {
 };
 
 export interface IWalletService {
-  createWallet(opts: {
-    id: string;
+  createWallet(opts: { id: string; name?: string }): Promise<WalletInfo>;
+  createWalletFromSeed(opts: {
+    id?: string;
     seed?: string;
-    name?: string;
   }): Promise<WalletInfo>;
+  createWalletFromViewkey(opts: {
+    id?: string;
+    ufvk: string;
+    birthday?: number;
+  }): Promise<void>;
 
   //new_address oz - new_address that recieves orchard and sapling
   createUnifiedAddress(
@@ -92,6 +97,6 @@ export interface IWalletService {
 
   // wallet_kind
   walletKind(walletId?: string): Promise<WalletKind>;
-  // delete watch wallet 
+  // delete watch wallet
   deleteWatchWallet(walletId: string): Promise<void>;
 }
