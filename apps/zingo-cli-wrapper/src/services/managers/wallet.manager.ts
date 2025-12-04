@@ -32,7 +32,7 @@ export class WalletManager implements IWalletService {
   }> {
     return this.parseAaddress(walletId);
   }
-  
+
   recovery_info(
     walletId?: string
   ): Promise<{ seedPhrase: string; birthday: number; [index: string]: any }> {
@@ -56,8 +56,11 @@ export class WalletManager implements IWalletService {
   }
 
   async createWallet(opts: { name?: string }) {
-    const id = `w_${Date.now().toString(36)}`;
-    const info = await this.adapter.createWallet({ id, name: opts.name });
+    const id = opts.name
+      ? `w_${opts.name}_${Date.now().toString(36)}`
+      : `w_${Date.now().toString(36)}`;
+
+    const info = await this.adapter.createWallet({ id });
 
     // TODO: persist wallet metadata to disk/db (postgres, sqlite etc)
     this.wallet.set(info.id, info);
