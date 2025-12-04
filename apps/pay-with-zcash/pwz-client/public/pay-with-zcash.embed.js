@@ -86,7 +86,7 @@
     cp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`,
     ok: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>`,
     lnk: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
-    ext: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>`
+    ext: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>`,
   };
 
   // Create trigger button
@@ -102,7 +102,7 @@
 
     const ov = document.createElement("div");
     ov.className = "zwg-overlay";
-    ov.onclick = e => e.target === ov && ov.remove();
+    ov.onclick = (e) => e.target === ov && ov.remove();
 
     ov.innerHTML = `
       <div class="zwg-modal ${cls}" style="position:relative">
@@ -117,7 +117,7 @@
         </div>
         <div class="zwg-amt">
           <p class="zwg-amt-lbl">Amount Due</p>
-          <p class="zwg-amt-val"><b>${amount}</b><small>ZEC</small></p>
+          <p class="zwg-amt-val"><b>${Number(amount).toFixed(3)}</b><small>ZEC</small></p>
         </div>
         <div class="zwg-fld">
           <span class="zwg-fld-lbl">Address</span>
@@ -148,14 +148,19 @@
     ov.querySelector(".zwg-x").onclick = () => ov.remove();
     ov.querySelector(".zwg-close").onclick = () => ov.remove();
 
-    ov.querySelectorAll(".zwg-copy").forEach(b => {
+    ov.querySelectorAll(".zwg-copy").forEach((b) => {
       b.onclick = async () => {
         try {
           await navigator.clipboard.writeText(b.dataset.c);
           b.classList.add("ok");
           b.innerHTML = ic.ok;
-          setTimeout(() => { b.classList.remove("ok"); b.innerHTML = ic.cp; }, 1500);
-        } catch (e) { console.error(e); }
+          setTimeout(() => {
+            b.classList.remove("ok");
+            b.innerHTML = ic.cp;
+          }, 1500);
+        } catch (e) {
+          console.error(e);
+        }
       };
     });
 
@@ -167,7 +172,7 @@
         const res = await fetch("http://localhost:4000/api/shorten", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uri })
+          body: JSON.stringify({ uri }),
         });
         const { shortUrl } = await res.json();
         shortBtn.innerHTML = `${ic.ok} Done`;
@@ -182,13 +187,18 @@
           </div>
         `;
         ov.querySelector(".zwg-acts").before(fld);
-        fld.querySelector(".zwg-copy").onclick = async function() {
+        fld.querySelector(".zwg-copy").onclick = async function () {
           try {
             await navigator.clipboard.writeText(shortUrl);
             this.classList.add("ok");
             this.innerHTML = ic.ok;
-            setTimeout(() => { this.classList.remove("ok"); this.innerHTML = ic.cp; }, 1500);
-          } catch (e) { console.error(e); }
+            setTimeout(() => {
+              this.classList.remove("ok");
+              this.innerHTML = ic.cp;
+            }, 1500);
+          } catch (e) {
+            console.error(e);
+          }
         };
       } catch (e) {
         console.error(e);
