@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { walletService } from "../../../config";
+import { walletService } from "../../../services/wallet-init";
 
 /**
  * POST /payments/verify
