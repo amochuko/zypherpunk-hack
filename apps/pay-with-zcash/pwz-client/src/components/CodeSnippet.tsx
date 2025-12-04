@@ -14,7 +14,7 @@ export default function CodeSnippet({ config }: Props) {
   const [copied, setCopied] = useState(false);
 
   const snippet = `<script
-  src="https://paywithz.cash/pay-with-zcash.embed.js"
+  src="https://zypherpunk-hack-5vdi.vercel.app/pay-with-zcash.embed.js"
   data-address="${config.address}"
   data-amount="${config.amount}"
   data-label="${config.label}"
