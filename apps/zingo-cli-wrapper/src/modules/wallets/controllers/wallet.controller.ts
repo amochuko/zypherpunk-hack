@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { walletService } from "../../../config";
+import { walletService } from "../../../services/wallet-init";
 
 type CreateWalletResp = {
   walletId: string;
