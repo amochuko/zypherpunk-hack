@@ -4,6 +4,8 @@ import walletContrl from "./controllers/wallet.controller";
 const router = express.Router();
 
 router.post("/create", walletContrl.createWallet);
+router.post("/create/from-viewkey", walletContrl.createWalletFromViewkey);
+router.post("/create/from-seed", walletContrl.createWalletFromSeed);
 router.get("/:id/balance", walletContrl.getBalance);
 router.get("/:id/send", walletContrl.send);
 router.get("/kind", walletContrl.walletKind);
