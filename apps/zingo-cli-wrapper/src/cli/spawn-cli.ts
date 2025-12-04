@@ -6,11 +6,9 @@
 import * as childProcess from "node:child_process";
 import { cleanZingoOutput } from "./cleanZingoOutput";
 
-export function spawnCli(args: string[], timeoutMs = 10000): Promise<any> {
+function spawnCli(args: string[], timeoutMs = 10000): Promise<any> {
   return new Promise((resolve, reject) => {
     const bin = "zingo-cli"; //|| config.ZINGO_CLI_PATH;
-    console.log({ bin, args });
-
     const cp = childProcess.spawn(bin, args, {
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -42,4 +40,21 @@ export function spawnCli(args: string[], timeoutMs = 10000): Promise<any> {
       }, timeoutMs);
     }
   });
+}
+
+// helper wrapper that always places global flags before the command.
+export async function runCliForWallet(
+  walletDir: string,
+  cmdArgs: string[],
+  opts?: { nosync?: boolean }
+) {
+  const args: string[] = ["--data-dir", walletDir];
+
+  if (opts?.nosync ?? true) {
+    args.push("--nosync");
+  }
+
+  args.push(...cmdArgs);
+
+  return spawnCli(args);
 }
