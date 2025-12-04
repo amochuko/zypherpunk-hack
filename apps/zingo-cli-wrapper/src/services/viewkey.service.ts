@@ -39,16 +39,15 @@ export class ViewkeyService {
   }
 
   async getTransactions(wallet: WatchWallet) {
-    // spawnCli(["--data-dir", wallet.walletDir, "list-transactions"])
-    // parse and return structured txs
+    const tx = await this.walletAdapter.transactions(wallet.id);
+    return tx;
   }
 
-  async getBalance(wallet: WatchWallet) {
-    // spawnCli(["--data-dir", wallet.walletDir, "balance"])
-    // parse JSON
+  async getBalance(wallet: WatchWallet): Promise<any> {
+    return await this.walletAdapter.getBalance(wallet.id);
   }
 
   async listAddresses(wallet: WatchWallet) {
-    // spawnCli(["--data-dir", wallet.walletDir, "addresses"])
+    return await this.walletAdapter.listAddresses(wallet.id);
   }
 }
