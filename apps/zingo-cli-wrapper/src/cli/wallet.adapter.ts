@@ -22,6 +22,9 @@ import { spawnCli } from "./spawn-cli";
 //
 export class WalletAdaptor implements IWalletService {
   constructor(private dataDir = config.ZINGO_DATA_DIR) {}
+  listTransactions(walletId: string): Promise<any[]> {
+    throw new Error("Method not implemented.");
+  }
 
   private walletDir(id: string) {
     return path.join(this.dataDir, id);
@@ -62,9 +65,29 @@ export class WalletAdaptor implements IWalletService {
   ): Promise<{ seedPhrase: string; birthday: number; [index: string]: any }> {
     throw new Error("Method not implemented.");
   }
-  transactions(walletId?: string): Promise<{ [index: string]: any }> {
-    throw new Error("Method not implemented.");
+
+  async transactions(walletId?: string): Promise<{ [index: string]: any }> {
+    const walletDir = this.walletDir(walletId!);
+
+    const out = await spawnCli(["transactions"]);
+
+    try {
+      const parsed = JSON.parse(out);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed.transactions) return parsed.transactions;
+
+      return [];
+    } catch (err) {
+      // If output is raw lines, try to split
+      const lines = out
+        .trim()
+        .split("\n")
+        .map((l: any) => l.trim())
+        .filter(Boolean);
+      return lines;
+    }
   }
+  
   birthday(walletId?: string): Promise<number> {
     throw new Error("Method not implemented.");
   }
@@ -189,34 +212,6 @@ export class WalletAdaptor implements IWalletService {
       return parsed;
     } catch (err) {
       throw new Error(`Failed to parse balance: ${String(err)} -- out: ${out}`);
-    }
-  }
-
-  async listTransactions(walletId: string): Promise<any[]> {
-    const walletDir = this.walletDir(walletId);
-
-    const out = await spawnCli([
-      "wallet",
-      "txs",
-      "--data-dir",
-      walletDir,
-      "--json",
-    ]);
-
-    try {
-      const parsed = JSON.parse(out);
-      if (Array.isArray(parsed)) return parsed;
-      if (parsed.transactions) return parsed.transactions;
-
-      return [];
-    } catch (err) {
-      // If output is raw lines, try to split
-      const lines = out
-        .trim()
-        .split("\n")
-        .map((l: any) => l.trim())
-        .filter(Boolean);
-      return lines;
     }
   }
 
