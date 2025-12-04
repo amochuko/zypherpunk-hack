@@ -3,6 +3,7 @@ dotenv.config();
 
 export const config = {
   PORT: process.env.PORT,
+  API_KEY: process.env.API_KEY,
   FAUCET_AMOUNT: process.env.FAUCET_AMOUNT,
   BASE_URL: process.env.BASE_URL,
   ZCASH_RPC_URL: String(process.env.ZCASH_RPC_URL),
