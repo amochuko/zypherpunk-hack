@@ -24,4 +24,24 @@ router.post("/send", async (req, res) => {
   }
 });
 
+/**
+ * POST /raw/send
+ * { hex }
+ * Submit a raw transaction hex (sendrawtransaction)
+ */
+router.post("/raw/send", async (req, res) => {
+  try {
+    const { hex } = req.body || {};
+    if (!hex) {
+      return res.status(400).json({ error: "missing hex" });
+    }
+
+    const result = await rpc("sendrawtransaction", [hex]);
+
+    return res.json({ result });
+  } catch (err: any) {
+    console.error("raw send error:", err.message || err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
 export default router;
