@@ -76,8 +76,8 @@ export class WalletManager implements IWalletService {
     return this.adapter.createUnifiedAddress(walletId, "oz");
   }
 
-  listTransactions(walletId: string): Promise<any[]> {
-    return this.adapter.listTransactions(walletId);
+  async listTransactions(walletId: string): Promise<{ [index: string]: any }> {
+    return await this.adapter.transactions(walletId);
   }
 
   sendToAddress(
