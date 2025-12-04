@@ -9,14 +9,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    // proxy: {
-    //   "/api": "", // where server runs on
-    // },
-    "/api": {
-      target: process.env.VITE_API_HOST,
-      changeOrigin: true,
-      rewrite: (path: string) => path.replace(/^\/api/, ""),
+    proxy: {
+      "/api": "http://localhost:4000", // where server runs on
     },
+    // "/api": {
+    //   target: process.env.VITE_API_HOST,
+    //   changeOrigin: true,
+    //   rewrite: (path: string) => path.replace(/^\/api/, ""),
+    // },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
