@@ -1,0 +1,38 @@
+{
+  "name": "pay-with-zcash",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.ts",
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && tsc",
+    "start": "npm run build && node dist/server.js",
+    "dev": "NODE_ENV=development nodemon",
+    "test": "vitest",
+    "profiler": "NODE_ENV=production node --prof dist/main.js",
+    "lint": "npx eslint .",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/node": "^22.19.1",
+    "@types/qrcode": "^1.5.6",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@numquid/route-mounter": "^1.0.1",
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "nanoid": "^5.1.6",
+    "qrcode": "^1.5.4",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.12"
+  }
+}
