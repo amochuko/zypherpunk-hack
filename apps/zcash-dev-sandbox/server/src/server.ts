@@ -2,6 +2,7 @@ import { mountRouters } from "@numquid/route-mounter";
 import cors from "cors";
 import express from "express";
 import path from "node:path";
+import { faucetApp } from "./services/faucet";
 import { config } from "./config";
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.static("public"));
 // });
 
 mountRouters(app, path.resolve("src", "modules"));
+app.use("/service/faucet", faucetApp);
 
 app.listen(config.PORT, () => {
   console.log(
