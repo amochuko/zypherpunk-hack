@@ -48,6 +48,27 @@ const walletController = {
       res.status(500).json({ error: String(err) });
     }
   },
+  createWalletFromSeed: async (
+    req: Request,
+    res: Response<CreateWalletResp | ErrorResp>,
+    next: NextFunction
+  ) => {
+    const seed = req.body.seed;
+
+    try {
+      const w = await walletService.createWalletFromSeed({
+        seed,
+        id: uuidv4(),
+      });
+
+      res.status(201).json({
+        walletId: w.id,
+        unified_address: String(w.unifiedAddress),
+      });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  },
   getBalance: async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     try {
