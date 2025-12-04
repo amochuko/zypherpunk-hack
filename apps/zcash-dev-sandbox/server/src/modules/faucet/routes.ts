@@ -7,7 +7,7 @@ const router = Router();
  * POST /faucet
  * { address: string, amount?: number }
  */
-router.post("/send", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { to, amount } = req.body || {};
 
