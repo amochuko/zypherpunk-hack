@@ -127,37 +127,7 @@ export class WalletAdaptor implements IWalletService {
     // The CLI will auto-generate a seed and wallet files when it needs to.
     await spawnCli(["--data-dir", walletDir, "--nosyc", "addresses"]);
 
-    // Now read addresses (again with --nosync to avoid sync logs)
-    const raw = await spawnCli([
-      "--data-dir",
-      walletDir,
-      "--nosync",
-      "addresses",
-    ]);
-
-    const parsed = await parseCliJson<any>(raw);
-
-    // parsed is expected to be an array of address objects (see your sample).
-    // Choose the best encoded_address to treat as "unifiedAddress".
-    // In many zingo outputs encoded_address is the unified address; pick first item by default.
-    let ua: string | undefined;
-
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      // Prefer an address that has orchard/sapling flags (your app's policy)
-      const preferred = parsed.find((a: any) => a.has_orchard || a.has_sapling);
-      ua = preferred?.encoded_address ?? parsed[0].encoded_address;
-    } else if (parsed?.unified_address) {
-      ua = parsed.unified_address;
-    } else if (typeof parsed === "string") {
-      ua = parsed;
-    }
-
-    if (!ua) {
-      throw new Error(
-        "Could not determine unified address from zingo-cli output."
-      );
-    }
-
+    const ua = await this.getAddresses(walletDir);
     return { id, path: walletDir, unifiedAddress: ua };
   }
 
