@@ -44,6 +44,20 @@ export type TxEntry = {
 export class WalletAdaptor implements IWalletService {
   constructor(private dataDir = config.WALLET_DATA_DIR) {}
 
+  async deleteWatchWallet(walletId: string): Promise<void> {
+    const walletDir = this.walletDir(walletId);
+
+    if (!walletDir.startsWith(this.dataDir))
+      throw new Error("refusing to remove path outside base dir");
+
+    try {
+      await fs.rm(walletDir, { recursive: true, force: true });
+      console.log(`Wallet id ${walletId} removed.`);
+    } catch (err) {
+      console.error(`Failed to delete Wallet id ${walletId}.`);
+    }
+  }
+
   async transactions(walletId: string): Promise<any[]> {
     const walletDir = this.walletDir(walletId!);
     const raw = await spawnCli(["--data-dir", walletDir, "transactions"]);
