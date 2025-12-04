@@ -9,7 +9,6 @@ import {
   WalletInfo,
   WalletKind,
 } from "../modules/wallets/interface/wallet.interface";
-import { folderExists } from "../utils/folderExists";
 import { parseCliJson } from "../utils/parseCliJson";
 import { spawnCli } from "./spawn-cli";
 
@@ -34,7 +33,8 @@ export class WalletAdaptor implements IWalletService {
   }
 
   async walletKind(walletId?: string): Promise<WalletKind> {
-    const out = await spawnCli(["wallet_kind"]);
+    const walletDir = this.walletDir(walletId!);
+    const out = await spawnCli(["--data-dir", walletDir, "wallet_kind"]);
 
     try {
       return JSON.parse(out);
@@ -52,7 +52,12 @@ export class WalletAdaptor implements IWalletService {
   }> {
     const walletDir = this.walletDir(walletId!);
 
-    const out = await spawnCli(["get-address"]);
+    const out = await spawnCli([
+      "--data-dir",
+      walletDir,
+      "--nosync",
+      "get-address",
+    ]);
 
     try {
       const parsed = JSON.parse(out);
@@ -72,7 +77,7 @@ export class WalletAdaptor implements IWalletService {
   async transactions(walletId?: string): Promise<{ [index: string]: any }> {
     const walletDir = this.walletDir(walletId!);
 
-    const out = await spawnCli(["transactions"]);
+    const out = await spawnCli(["--data-dir", walletDir, "transactions"]);
 
     try {
       const parsed = JSON.parse(out);
@@ -101,10 +106,7 @@ export class WalletAdaptor implements IWalletService {
     throw new Error("Method not implemented.");
   }
 
-  async createWallet(opts: {
-    id?: string;
-    name?: string;
-  }): Promise<WalletInfo> {
+  async createWallet(opts: { id?: string }): Promise<WalletInfo> {
     const id = opts.id ?? uuidv4();
     const walletDir = this.walletDir(id);
 
@@ -126,7 +128,12 @@ export class WalletAdaptor implements IWalletService {
     await spawnCli(["--data-dir", walletDir, "--nosyc", "addresses"]);
 
     // Now read addresses (again with --nosync to avoid sync logs)
-    const raw = await spawnCli(["--nosync", "addresses"]);
+    const raw = await spawnCli([
+      "--data-dir",
+      walletDir,
+      "--nosync",
+      "addresses",
+    ]);
 
     const parsed = await parseCliJson<any>(raw);
 
@@ -216,39 +223,7 @@ export class WalletAdaptor implements IWalletService {
 
     await spawnCli(["--data-dir", walletDir, "--nosync", "--seed", opts.seed]);
 
-    // // Now read addresses (again with --nosync to avoid sync logs)
-    // const raw = await spawnCli([
-    //   "--data-dir",
-    //   walletDir,
-    //   "--nosync",
-    //   "addresses",
-    // ]);
-
-    // Now read addresses (again with --nosync to avoid sync logs)
-    const raw = await spawnCli(["--nosync", "addresses"]);
-
-    const parsed = await parseCliJson<any>(raw);
-
-    // parsed is expected to be an array of address objects (see your sample).
-    // Choose the best encoded_address to treat as "unifiedAddress".
-    // In many zingo outputs encoded_address is the unified address; pick first item by default.
-    let ua: string | undefined;
-
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      // Prefer an address that has orchard/sapling flags (your app's policy)
-      const preferred = parsed.find((a: any) => a.has_orchard || a.has_sapling);
-      ua = preferred?.encoded_address ?? parsed[0].encoded_address;
-    } else if (parsed?.unified_address) {
-      ua = parsed.unified_address;
-    } else if (typeof parsed === "string") {
-      ua = parsed;
-    }
-
-    if (!ua) {
-      throw new Error(
-        "Could not determine unified address from zingo-cli output."
-      );
-    }
+    const ua = await this.getAddresses(walletDir);
 
     return { id, path: walletDir, unifiedAddress: ua };
   }
@@ -347,5 +322,40 @@ export class WalletAdaptor implements IWalletService {
     } catch (err) {
       return { txid: out.trim() };
     }
+  }
+
+  private async getAddresses(walletDir: string) {
+    // Now read addresses (again with --nosync to avoid sync logs)
+    const raw = await spawnCli([
+      "--data-dir",
+      walletDir,
+      "--nosync",
+      "addresses",
+    ]);
+
+    const parsed = await parseCliJson<any>(raw);
+
+    // parsed is expected to be an array of address objects (see your sample).
+    // Choose the best encoded_address to treat as "unifiedAddress".
+    // In many zingo outputs encoded_address is the unified address; pick first item by default.
+    let ua: string | undefined;
+
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Prefer an address that has orchard/sapling flags (your app's policy)
+      const preferred = parsed.find((a: any) => a.has_orchard || a.has_sapling);
+      ua = preferred?.encoded_address ?? parsed[0].encoded_address;
+    } else if (parsed?.unified_address) {
+      ua = parsed.unified_address;
+    } else if (typeof parsed === "string") {
+      ua = parsed;
+    }
+
+    if (!ua) {
+      throw new Error(
+        "Could not determine unified address from zingo-cli output."
+      );
+    }
+
+    return ua;
   }
 }
