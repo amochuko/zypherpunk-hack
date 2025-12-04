@@ -199,18 +199,6 @@ export class WalletAdaptor implements IWalletService {
 
     const birthday = Number(opts.birthday ?? 0);
 
-    // await spawnCli([
-    //   "wallet",
-    //   "create",
-    //   "--data-dir",
-    //   walletDir,
-    //   "--nosync",
-    //   "--viewkey",
-    //   opts.viewkey,
-    //   "--birthday",
-    //   opts.birthday || "0",
-    // ]);
-
     await spawnCli([
       "--data-dir",
       walletDir,
@@ -222,6 +210,7 @@ export class WalletAdaptor implements IWalletService {
     ]);
 
     const ua = await this.getAddresses(walletDir);
+    
     const watch: WatchWallet = {
       id,
       walletDir,
@@ -363,9 +352,8 @@ export class WalletAdaptor implements IWalletService {
 
     const parsed = await parseCliJson<any>(raw);
 
-    // parsed is expected to be an array of address objects (see your sample).
+    // parsed is expected to be an array of address objects .
     // Choose the best encoded_address to treat as "unifiedAddress".
-    // In many zingo outputs encoded_address is the unified address; pick first item by default.
     let ua: string | undefined;
 
     if (Array.isArray(parsed) && parsed.length > 0) {
@@ -376,6 +364,8 @@ export class WalletAdaptor implements IWalletService {
       ua = parsed.unified_address;
     } else if (typeof parsed === "string") {
       ua = parsed;
+    } else {
+      ua = parsed.encoded_address;
     }
 
     if (!ua) {
