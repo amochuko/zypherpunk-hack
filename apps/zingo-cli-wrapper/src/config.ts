@@ -11,7 +11,8 @@ export const config = {
   GITHUB_TOKEN: String(process.env.GITHUB_TOKEN),
   ZINGO_CLI_PATH:
     String(process.env.ZINGO_CLI_PATH) ?? String(process.env.ZINGO_SERVICE_URL),
-  ZINGO_DATA_DIR: String(process.env.DATA_DIR) ?? "zingo-cli",
+  ZINGO_DATA_DIR: String(process.env.WALLET_DATA_DIR) ?? "zingo-cli",
+  WALLET_DATA_DIR: String(process.env.WALLET_DATA_DIR) ?? "zingo-cli",
   ZINGO_SERVICE_URL: String(process.env.ZINGO_SERVICE_URL),
   MASTER_KEY: process.env.MASTER_KEY ?? "dev-master-key",
 };
