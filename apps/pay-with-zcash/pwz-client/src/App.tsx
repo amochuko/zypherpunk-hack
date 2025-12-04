@@ -1,34 +1,27 @@
-import { useState } from "react";
-import "./App.css";
-import ButtonPreview from "./components/ButtonPreview";
-import CodeSnippet from "./components/CodeSnippet";
-import GeneratorForm from "./components/GeneratorForm";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
 
-export interface FormConfig {
-  address: string;
-  amount: number;
-  currency: string;
-  label: string;
-  qrData?: string;
-}
+const queryClient = new QueryClient();
 
-function App() {
-  const [config, setConfig] = useState<FormConfig | null>(null);
-
-  return (
-    <div style={{ maxWidth: "90%", margin: "auto", padding: 4 }}>
-      <h1>Pay with Zcash Button Generator</h1>
-
-      <GeneratorForm onGenerated={setConfig} />
-
-      {config && (
-        <>
-          <ButtonPreview config={config} />
-          <CodeSnippet config={config} />
-        </>
-      )}
-    </div>
-  );
-}
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
