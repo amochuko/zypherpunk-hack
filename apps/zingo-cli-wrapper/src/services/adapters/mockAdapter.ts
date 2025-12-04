@@ -8,6 +8,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 export class MockAdapter implements IWalletService {
+  deleteWatchWallet(walletId: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
   parseAaddress(walletId: string): Promise<{
     status: boolean;
     chain_name: string;
