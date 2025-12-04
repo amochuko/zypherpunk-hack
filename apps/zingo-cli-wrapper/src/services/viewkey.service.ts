@@ -31,9 +31,9 @@ export class ViewkeyService {
     });
 
     return {
-      birthday: watch.birthday,
+      birthday: Number(opts.birthday),
       id: watch.id,
-      ufvk: watch.ufvk,
+      ufvk: opts.ufvk,
       unifiedAddress: String(watch.unifiedAddress),
     };
   }
