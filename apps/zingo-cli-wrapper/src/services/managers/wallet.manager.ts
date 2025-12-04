@@ -6,6 +6,7 @@ import {
   IWalletService,
   WalletInfo,
   WalletKind,
+  WatchWallet,
 } from "../../modules/wallets/interface/wallet.interface";
 import { MockAdapter } from "../../services/adapters/mockAdapter";
 
@@ -20,11 +21,23 @@ export class WalletManager implements IWalletService {
     this.adapter = USE_MOCK ? new MockAdapter() : new WalletAdaptor(DATA_DIR);
   }
 
-  createWalletFromSeed(opts: {
+  async createWalletFromViewkey(opts: {
+    id?: string;
+    ufvk: string;
+    birthday?: number;
+  }): Promise<WatchWallet> {
+    return await this.adapter.createWalletFromViewkey({
+      id: opts.id,
+      ufvk: opts.ufvk,
+      birthday: opts.birthday,
+    });
+  }
+
+  async createWalletFromSeed(opts: {
     id: string;
     seed: string;
   }): Promise<WalletInfo> {
-    throw new Error("Method not implemented.");
+    return this.adapter.createWalletFromSeed({ id: opts.id, seed: opts.seed });
   }
 
   async deleteWatchWallet(walletId: string): Promise<void> {

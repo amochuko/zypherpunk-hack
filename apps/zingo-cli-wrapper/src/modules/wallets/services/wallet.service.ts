@@ -5,6 +5,7 @@ import {
   IWalletService,
   WalletInfo,
   WalletKind,
+  WatchWallet,
 } from "../interface/wallet.interface";
 
 export class WalletService implements IWalletService {
@@ -12,6 +13,18 @@ export class WalletService implements IWalletService {
 
   constructor(opts: { wallet: WalletManager; USE_MOCK: boolean }) {
     this.wallet = new WalletManager(opts.USE_MOCK);
+  }
+  
+  async createWalletFromViewkey(opts: {
+    id?: string;
+    ufvk: string;
+    birthday?: number;
+  }): Promise<WatchWallet> {
+    return this.wallet.createWalletFromViewkey({
+      id: opts.id,
+      ufvk: opts.ufvk,
+      birthday: opts.birthday,
+    });
   }
 
   async deleteWatchWallet(walletId: string): Promise<void> {

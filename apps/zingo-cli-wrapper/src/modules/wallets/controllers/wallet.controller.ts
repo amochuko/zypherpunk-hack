@@ -69,6 +69,28 @@ const walletController = {
       res.status(500).json({ error: String(err) });
     }
   },
+  createWalletFromViewkey: async (
+    req: Request,
+    res: Response<CreateWalletResp | ErrorResp>,
+    next: NextFunction
+  ) => {
+    const { ufvk, birthday } = req.body;
+
+    try {
+      const w = await walletService.createWalletFromViewkey({
+        ufvk,
+        birthday,
+        id: uuidv4(),
+      });
+
+      res.status(201).json({
+        walletId: w.id,
+        unified_address: String(w.unifiedAddress),
+      });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  },
   getBalance: async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     try {

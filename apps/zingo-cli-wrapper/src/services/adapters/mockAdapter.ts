@@ -3,11 +3,25 @@ import {
   IWalletService,
   WalletInfo,
   WalletKind,
+  WatchWallet,
 } from "../../modules/wallets/interface/wallet.interface";
 
 import { v4 as uuidv4 } from "uuid";
 
 export class MockAdapter implements IWalletService {
+  createWalletFromViewkey(opts: {
+    id?: string;
+    ufvk: string;
+    birthday?: number;
+  }): Promise<WatchWallet> {
+    throw new Error("Method not implemented.");
+  }
+  createWalletFromSeed(opts: {
+    id?: string;
+    seed?: string;
+  }): Promise<WalletInfo> {
+    throw new Error("Method not implemented.");
+  }
   deleteWatchWallet(walletId: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
