@@ -9,8 +9,19 @@ import {
   WalletInfo,
   WalletKind,
 } from "../modules/wallets/interface/wallet.interface";
+import { dirExistsNotEmpty } from "../utils/dirExiastsNotEmpty";
 import { parseCliJson } from "../utils/parseCliJson";
 import { spawnCli } from "./spawn-cli";
+
+export type WatchWallet = {
+  id: string;
+  walletDir: string;
+  ufvk: string;
+  ufvkNotPersisted?: true; // marker that UFVK not stored on disk
+  birthday: number; // block height
+  unifiedAddress?: string;
+  persisted?: boolean; // whether wallet contents are encrypted on-disk
+};
 
 /**
  * WalletAdaptor
@@ -99,9 +110,11 @@ export class WalletAdaptor implements IWalletService {
   birthday(walletId?: string): Promise<number> {
     throw new Error("Method not implemented.");
   }
+
   exportUfvk(walletId?: string): Promise<{ ufvk: string; birthday: number }> {
     throw new Error("Method not implemented.");
   }
+
   listMemos(walletId?: string): Promise<any> {
     throw new Error("Method not implemented.");
   }
@@ -125,54 +138,65 @@ export class WalletAdaptor implements IWalletService {
     // Use global flags before the command: ["--data-dir", walletDir, "--nosync", "addresses"]
     // --nosync prevents automatic background sync startup messages.
     // The CLI will auto-generate a seed and wallet files when it needs to.
-    await spawnCli(["--data-dir", walletDir, "--nosyc", "addresses"]);
+    await spawnCli(["--data-dir", walletDir, "--nosync", "addresses"]);
 
     const ua = await this.getAddresses(walletDir);
     return { id, path: walletDir, unifiedAddress: ua };
   }
 
-  async createWalletFromViewkey(opts: { id?: string }): Promise<WalletInfo> {
+  async createWalletFromViewkey(opts: {
+    id?: string;
+    ufvk: string;
+    birthday?: number;
+  }) {
     //
     const id = opts.id ?? uuidv4();
     const walletDir = this.walletDir(id);
     await fs.mkdir(walletDir, { recursive: true });
 
+    if (!opts?.ufvk) throw new Error("ufvk is required");
+
+    // avoid clobber
+    if (await dirExistsNotEmpty(walletDir)) {
+      throw new Error(`wallet id "${id}" already exists and is non-empty`);
+    }
+
+    await fs.mkdir(walletDir, { recursive: true, mode: 0o700 });
+
+    const birthday = Number(opts.birthday ?? 0);
+
+    // await spawnCli([
+    //   "wallet",
+    //   "create",
+    //   "--data-dir",
+    //   walletDir,
+    //   "--nosync",
+    //   "--viewkey",
+    //   opts.viewkey,
+    //   "--birthday",
+    //   opts.birthday || "0",
+    // ]);
+
     await spawnCli([
-      "wallet",
-      "create",
-      "--seed",
       "--data-dir",
       walletDir,
-      "--json",
+      "--nosync",
+      "--viewkey",
+      opts.ufvk,
+      "--birthday",
+      String(Math.max(0, birthday)),
     ]);
 
-    await spawnCli(["wallet", "create", "--data-dir", walletDir, "--json"]);
-
-    // get addreess
-    const ua = await spawnCli([
-      "wallet",
-      "get-address",
-      "--data-url",
+    const ua = await this.getAddresses(walletDir);
+    const watch: WatchWallet = {
+      id,
       walletDir,
-      "--json",
-    ]);
+      birthday,
+      ufvk: opts.ufvk,
+      unifiedAddress: ua,
+    };
 
-    let uaTrim = ua.trim();
-
-    try {
-      const parsed = JSON.parse(uaTrim);
-
-      if (parsed.unified_address) {
-        uaTrim = parsed.unified_address;
-      } else if (typeof parsed === "string") {
-        uaTrim = parsed;
-      }
-
-      return { id, path: walletDir, unifiedAddress: uaTrim };
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
+    return watch;
   }
 
   async createWalletFromSeed(opts: {
