@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: zingo-node-api
+    restart: unless-stopped
+    depends_on:
+      - zingo-service
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      ZINGO_CLI_PATH: /usr/local/bin/zingo-cli
+      ZINGO_DATA_DIR: /data
+    volumes:
+      - zingo_data:/data
+
+  zingo-service:
+    image: zingo-service:latest   # Reusing existing image
+    container_name: zingo-service
+    restart: unless-stopped
+    volumes:
+      - zingo_data:/data
+    ports:
+      - "8000:8000"
+
+volumes:
+  zingo_data:
