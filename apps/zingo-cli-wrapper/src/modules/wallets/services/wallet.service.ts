@@ -14,6 +14,10 @@ export class WalletService implements IWalletService {
     this.wallet = new WalletManager(opts.USE_MOCK);
   }
 
+  async deleteWatchWallet(walletId: string): Promise<void> {
+    await this.wallet.deleteWatchWallet(walletId);
+  }
+
   async createWallet(opts: {
     id: string;
     seed?: string;
