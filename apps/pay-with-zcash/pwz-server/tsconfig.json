@@ -24,6 +24,6 @@
     "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*"], // which files to compile
+  "include": ["src/**/*", "public"], // which files to compile
   "exclude": ["node_modules", "dist/**/*"] // which files to skip
 }
