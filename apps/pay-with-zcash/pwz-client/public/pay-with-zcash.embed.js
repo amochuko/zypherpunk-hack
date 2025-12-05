@@ -1,8 +1,6 @@
-/**
- * Pay with Zcash Widget - Premium Design
- * Lean, framework-free, beautiful
- */
+
 (function () {
+  const API_BASE_URL = "http://localhost:4000/api";
   const script = document.currentScript;
   const addr = script?.dataset.address;
   const amount = script?.dataset.amount;
@@ -169,7 +167,7 @@
       shortBtn.disabled = true;
       shortBtn.innerHTML = `<span class="zwg-spin"></span>`;
       try {
-        const res = await fetch("http://localhost:4000/api/shorten", {
+        const res = await fetch(`${API_BASE_URL}/shorten`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uri }),
