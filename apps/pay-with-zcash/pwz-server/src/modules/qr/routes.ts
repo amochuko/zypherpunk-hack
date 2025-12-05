@@ -44,7 +44,8 @@ router.get("/", async (req, res) => {
     const buffer = Buffer.from(base64, "base64");
     res.setHeader("Content-Type", "image/png");
     res.send(buffer);
-  } catch (e) {
+  } catch (err) {
+    console.error("Error generating QR:", err);
     res.status(500).send("Error generating QR");
   }
 });
