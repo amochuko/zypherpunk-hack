@@ -10,11 +10,12 @@ interface Props {
   config: Config;
 }
 
+const API_BASE_URL_EMBED_CODE = import.meta.env.VITE_API_BASE_URL_EMBED_CODE;
 export default function CodeSnippet({ config }: Props) {
   const [copied, setCopied] = useState(false);
 
   const snippet = `<script
-  src="https://zypherpunk-hack-5vdi.vercel.app/pay-with-zcash.embed.js"
+  src=${API_BASE_URL_EMBED_CODE} 
   data-address="${config.address}"
   data-amount="${config.amount}"
   data-label="${config.label}"
@@ -121,7 +122,7 @@ export default function CodeSnippet({ config }: Props) {
               {"  "}
               <span className="text-zcash-gold">src</span>=
               <span className="text-green-400">
-                https://zypherpunk-hack-5vdi.vercel.app/pay-with-zcash.embed.js
+                {API_BASE_URL_EMBED_CODE}
               </span>
               {"\n"}
               {"  "}
