@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "npm run clean && tsc",
-    "start": "npm run build && node dist/server.js",
+    "start": "node dist/server.js",
     "dev": "NODE_ENV=development nodemon",
     "test": "vitest",
     "profiler": "NODE_ENV=production node --prof dist/main.js",
