@@ -12,7 +12,7 @@ interface Props {
   onGenerated: (config: GeneratedConfig) => void;
 }
 
-const BASE_URL = config.VITE_API_HOST;
+const BASE_URL = config.VITE_API_BASE_URL;
 export default function GeneratorForm({ onGenerated }: Props) {
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
@@ -25,7 +25,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch(`api/convert`, {
+      const res = await fetch(`${BASE_URL}/convert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -38,7 +38,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
       const data = await res.json();
       console.log({ BASE_URL, data });
 
-      const qrRes = await fetch("/api/qr", {
+      const qrRes = await fetch(`${BASE_URL}/qr`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, amount: data.amount, label }),
