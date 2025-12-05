@@ -12,11 +12,6 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       "/api": "http://localhost:4000", // where server runs on
     },
-    // "/api": {
-    //   target: process.env.VITE_API_HOST,
-    //   changeOrigin: true,
-    //   rewrite: (path: string) => path.replace(/^\/api/, ""),
-    // },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
