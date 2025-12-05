@@ -8,10 +8,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mountRouters(app, path.resolve("src", "modules"));
+const modulesDir = path.join(__dirname, "modules");
+mountRouters(app, modulesDir);
 
 app.listen(config.port, () => {
   console.log(
-    `Pay with Zcash gateway running on http://localhost:${config.port}`
+    `Pay with Zcash gateway running on http://localhost:${config.port}/api`
   );
 });
