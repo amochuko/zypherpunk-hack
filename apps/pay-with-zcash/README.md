@@ -2,7 +2,7 @@
 
 Pay-with-Zcash Button Generator is a beautiful blend of utility, visibility, and community adoption. It empowers merchants and creators, gives Zcash tangible everyday use, and can easily grow into a plugin ecosystem later (Shopify, Ghost, WordPress, etc.).
 
-Let's anyone instantly create a "Pay with Zcash" button for their website or checkout page — no account, no backend wallet, just their ZEC address.
+Let's anyone instantly create a "Pay with Zcash", "Donate with Zcash", "Buy Me Coffee" button for their website or checkout page — no account, no backend wallet, just their ZEC address.
 
 The button opens a small payment modal (or QR popup) showing:
 
@@ -10,7 +10,8 @@ The button opens a small payment modal (or QR popup) showing:
 - Amount (in ZEC or USD)
 - Description (item name, etc.)
 - QR code for mobile wallet
-- Optional copy-to-clipboard button
+- Copy-to-clipboard button
+- Payment uri
 
 ## ⚙️ Core Features (MVP)
 Feature	                    Description
