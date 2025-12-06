@@ -4,6 +4,8 @@ interface Config {
   address: string;
   amount: number;
   label: string;
+  apiBase: string;
+  theme:string;
 }
 
 interface Props {
@@ -19,6 +21,8 @@ export default function CodeSnippet({ config }: Props) {
   data-address="${config.address}"
   data-amount="${config.amount}"
   data-label="${config.label}"
+  data-theme="${config.theme}"
+  data-api-base="${config.apiBase}"
 ></script>`;
 
   const handleCopy = async () => {
@@ -121,9 +125,7 @@ export default function CodeSnippet({ config }: Props) {
               {"\n"}
               {"  "}
               <span className="text-zcash-gold">src</span>=
-              <span className="text-green-400">
-                {API_BASE_URL_EMBED_CODE}
-              </span>
+              <span className="text-green-400">{API_BASE_URL_EMBED_CODE}</span>
               {"\n"}
               {"  "}
               <span className="text-zcash-gold">data-address</span>=
@@ -139,6 +141,18 @@ export default function CodeSnippet({ config }: Props) {
               <span className="text-zcash-gold">data-label</span>=
               <span className="text-green-400">
                 "{config.label || "Pay with Zcash"}"
+              </span>
+              {"\n"}
+              {" "}
+              <span className="text-zcash-gold"> data-theme</span>=
+              <span className="text-green-400">
+                "{config.theme}"
+              </span>
+              {"\n"}
+              {" "}
+              <span className="text-zcash-gold"> data-api-base</span>=
+              <span className="text-green-400">
+                "{config.apiBase}"
               </span>
               {"\n"}
               <span className="text-pink-400">&gt;&lt;/script&gt;</span>
