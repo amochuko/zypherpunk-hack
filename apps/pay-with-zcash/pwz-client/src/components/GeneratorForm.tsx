@@ -16,6 +16,7 @@ const BASE_URL = config.VITE_API_BASE_URL;
 export default function GeneratorForm({ onGenerated }: Props) {
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
+  const [priceDataSource, setPriceDataSource] = useState("");
   const [currency, setCurrency] = useState("usd");
   const [label, setLabel] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,8 @@ export default function GeneratorForm({ onGenerated }: Props) {
     setLoading(true);
 
     try {
+      setPriceDataSource("");
+
       const res = await fetch(`${BASE_URL}/convert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,7 +39,8 @@ export default function GeneratorForm({ onGenerated }: Props) {
       });
 
       const data = await res.json();
-      console.log({ BASE_URL, data });
+      
+      setPriceDataSource(data.source);
 
       const qrRes = await fetch(`${BASE_URL}/qr`, {
         method: "POST",
@@ -181,6 +185,11 @@ export default function GeneratorForm({ onGenerated }: Props) {
             "Generate Button"
           )}
         </button>
+        {priceDataSource && (
+          <span className="mt-24 text-slate-400 text-sm">
+            Source: {priceDataSource}
+          </span>
+        )}
       </div>
     </form>
   );
