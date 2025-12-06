@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { urlStore } from "../shorten/routes";
+import { urlStore } from "../../modules/shorten/routes";
 
-const router = Router();
+const shortCodRedirectRouter = Router();
 
-router.get("/:id", async (req, res) => {
+shortCodRedirectRouter.get("/s/:id", async (req, res) => {
   const id = req.params.id;
   const uri = urlStore[id];
-  
+
   if (!uri) {
     return res.status(400).json({ error: "Invalid or expired payment link." });
   }
@@ -79,4 +79,4 @@ router.get("/:id", async (req, res) => {
   `);
 });
 
-export default router;
+export default shortCodRedirectRouter;
