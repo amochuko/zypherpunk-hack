@@ -1,24 +1,25 @@
 import { Router } from "express";
-import { getZecPrice } from "../../utils/coingecko";
+import { getZecPrice } from "../../utils/get-zec-price";
 import { convertBodySchema } from "./schema/convert-body.schema";
+import { config } from "../../config";
 
 const router = Router();
 
 router.post("/", async (req, res) => {
   try {
     const { amount, from, to } = convertBodySchema.parse(req.body);
-    const zecPrice = await getZecPrice();
+    const {price, source} = await getZecPrice(config.BASE_URL_ZCASH_PRICE);
 
     let result: number;
     if (from === "usd" && to === "zec") {
-      result = amount / zecPrice;
+      result = amount / price;
     } else if (from === "zec" && to === "usd") {
-      result = amount * zecPrice;
+      result = amount * price;
     } else {
       result = amount;
     }
 
-    res.json({ amount: result, rate: zecPrice });
+    res.json({ amount: result, rate: price, source });
   } catch (err) {
     console.error(err);
 
