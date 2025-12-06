@@ -6,6 +6,8 @@ interface GeneratedConfig {
   amount: number;
   label: string;
   qrData?: unknown;
+  apiBase:string;
+  theme:string;
 }
 
 interface Props {
@@ -15,6 +17,7 @@ interface Props {
 const BASE_URL = config.VITE_API_BASE_URL;
 export default function GeneratorForm({ onGenerated }: Props) {
   const [address, setAddress] = useState("");
+  const [theme, setTheme] = useState("light");
   const [amount, setAmount] = useState("");
   const [priceDataSource, setPriceDataSource] = useState("");
   const [currency, setCurrency] = useState("usd");
@@ -55,6 +58,8 @@ export default function GeneratorForm({ onGenerated }: Props) {
         amount: data.amount,
         label,
         qrData,
+        apiBase: import.meta.env.VITE_API_BASE_URL,
+        theme
       });
     } catch (err) {
       console.error(err);
@@ -137,21 +142,37 @@ export default function GeneratorForm({ onGenerated }: Props) {
             </div>
           </div>
 
-          {/* Label Field */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-widget-light-text dark:text-widget-dark-text">
-              Label{" "}
-              <span className="text-widget-light-muted dark:text-widget-dark-muted font-normal">
-                (optional)
-              </span>
-            </label>
-            <input
-              type="text"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="e.g. Buy T-Shirt"
-              className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
-            />
+          {/* Label and Theme Field */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-widget-light-text dark:text-widget-dark-text">
+                Label{" "}
+                <span className="text-widget-light-muted dark:text-widget-dark-muted font-normal">
+                  (optional)
+                </span>
+              </label>
+              <input
+                type="text"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                placeholder="e.g. Buy T-Shirt"
+                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-widget-light-text dark:text-widget-dark-text">
+                Theme
+              </label>
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200 cursor-pointer"
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </div>
           </div>
         </div>
 
