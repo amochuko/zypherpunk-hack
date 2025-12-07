@@ -1,5 +1,11 @@
 import axios from "axios";
 
+// Updated to:
+// - Avoids API throttling
+// - Reduces render cold-start failures
+// - Makes /convert ultra-stable
+// - Prevents frontend crashes
+
 let lastKnownPrice = 0;
 let lastUpdated = 0;
 let src = "";
