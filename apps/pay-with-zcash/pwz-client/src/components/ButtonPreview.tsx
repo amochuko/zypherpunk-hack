@@ -41,7 +41,7 @@ export default function ButtonPreview({ config }: Props) {
           <div className="p-4 bg-white rounded-2xl shadow-inner border border-widget-light-border dark:border-widget-dark-border">
             <QRCodeCanvas
               value={zcashUri}
-              size={160}
+              size={240}
               bgColor="#ffffff"
               fgColor="#1a1a1a"
               level="M"
