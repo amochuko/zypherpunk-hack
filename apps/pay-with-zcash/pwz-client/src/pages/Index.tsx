@@ -21,7 +21,7 @@ const Index = () => {
     label: "",
     apiBase: "",
     theme: "",
-    target: "#pwz-widget-container",
+    target: import.meta.env.VITE_PWZ_WIDGET_CONTAINER,
   });
 
   const handleGenerated = (config: GeneratedConfig) => {
