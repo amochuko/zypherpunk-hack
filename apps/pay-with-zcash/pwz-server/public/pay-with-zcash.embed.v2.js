@@ -191,7 +191,11 @@
     }
 
     // Build button
-    const btn = createEl("button", { class: "zwg-btn", type: "button" });
+    const btn = createEl("button", {
+      class: "zwg-btn",
+      type: "button",
+      name: "invoke-btn",
+    });
     btn.innerHTML = `${ICONS.z}<span>${config.label}</span>`;
 
     // Insert button into rootEl
@@ -399,9 +403,25 @@
     const data = Object.assign({}, scriptEl.dataset || {});
     // normalize dataset keys (data-addr or data-address)
     if (!data.address && data.addr) data.address = data.addr;
-    console.log("autoDetectAndMount", data);
 
-    const wrapper = createEl("div");
+    const { pwzWidget } = data;
+    const matchId = "#pwz-widget-container"
+      .toLowerCase()
+      .search("#pwz-widget-container");
+      // check widget wrapper is attached to script
+    if (matchId < 0) {
+      alert(
+        `The script should have an attribute of 'data-pwz-widget=#pwz-widget-container' where '#pwz-widget-container' is the attribute value of 'id' on a div tag that the pwz-widget would be mounted. 
+        Example: <div id="pwz-widget-container"></div>`
+      );
+
+      return;
+    }
+
+    const wrapper = pwzWidget.startsWith("#")
+      ? document.getElementById(pwzWidget.replace("#", ""))
+      : createEl("div", { id: "pwz-widget-container" });
+
     mountAfter(wrapper, scriptEl);
     // build config from dataset
     const cfg = {
