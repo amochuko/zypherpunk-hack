@@ -10,6 +10,7 @@ interface GeneratedConfig {
   label: string;
   apiBase: string;
   theme: string;
+  target: string;
 }
 
 const Index = () => {
@@ -20,6 +21,7 @@ const Index = () => {
     label: "",
     apiBase: "",
     theme: "",
+    target: "#pwz-widget-container",
   });
 
   const handleGenerated = (config: GeneratedConfig) => {

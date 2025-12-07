@@ -5,7 +5,8 @@ interface Config {
   amount: number;
   label: string;
   apiBase: string;
-  theme:string;
+  theme: string;
+  target: string;
 }
 
 interface Props {
@@ -22,6 +23,7 @@ export default function CodeSnippet({ config }: Props) {
   data-amount="${config.amount}"
   data-label="${config.label}"
   data-theme="${config.theme}"
+  data-target="${config.target}"
   data-api-base="${config.apiBase}"
 ></script>`;
 
@@ -155,6 +157,13 @@ export default function CodeSnippet({ config }: Props) {
                 "{config.apiBase}"
               </span>
               {"\n"}
+              {" "}
+              <span className="text-zcash-gold"> data-target</span>=
+              <span className="text-green-400">
+                "{config.target}"
+              </span>
+              {"\n"}
+              {" "}
               <span className="text-pink-400">&gt;&lt;/script&gt;</span>
             </code>
           </pre>
