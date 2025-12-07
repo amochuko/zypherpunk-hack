@@ -6,8 +6,8 @@ interface GeneratedConfig {
   amount: number;
   label: string;
   qrData?: unknown;
-  apiBase:string;
-  theme:string;
+  apiBase: string;
+  theme: string;
 }
 
 interface Props {
@@ -41,8 +41,16 @@ export default function GeneratorForm({ onGenerated }: Props) {
         }),
       });
 
+      if (!res.ok) {
+        throw new Error("PriceConversion: Price conversion failed!");
+      }
+
       const data = await res.json();
-      
+
+      if (!data.amount) {
+        throw new Error("PriceConversion: Invalid price data");
+      }
+
       setPriceDataSource(data.source);
 
       const qrRes = await fetch(`${BASE_URL}/qr`, {
@@ -59,7 +67,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
         label,
         qrData,
         apiBase: import.meta.env.VITE_API_BASE_URL,
-        theme
+        theme,
       });
     } catch (err) {
       console.error(err);
