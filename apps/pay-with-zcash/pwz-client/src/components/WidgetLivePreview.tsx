@@ -48,10 +48,7 @@ export function WidgetLivePreview({ config }: Props) {
     scriptRef.current = script;
 
     containerRef.current.appendChild(script);
-    console.log(script);
   }, [config]);
-
-  console.log(target);
 
   return (
     <>
