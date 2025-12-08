@@ -7,6 +7,7 @@ interface Config {
   apiBase: string;
   theme: string;
   target: string;
+  disabled: boolean;
 }
 
 interface Props {
@@ -17,6 +18,8 @@ const API_BASE_URL_EMBED_CODE = import.meta.env.VITE_API_BASE_URL_EMBED_CODE;
 export default function CodeSnippet({ config }: Props) {
   const [copied, setCopied] = useState(false);
 
+  const disabled = String(config.disabled);
+
   const snippet = `<script
   src=${API_BASE_URL_EMBED_CODE} 
   data-address="${config.address}"
@@ -24,6 +27,7 @@ export default function CodeSnippet({ config }: Props) {
   data-label="${config.label}"
   data-theme="${config.theme}"
   data-target="${config.target}"
+  data-disabled="${disabled}"
   data-api-base="${config.apiBase}"
 ></script>`;
 
@@ -144,27 +148,15 @@ export default function CodeSnippet({ config }: Props) {
               <span className="text-green-400">
                 "{config.label || "Pay with Zcash"}"
               </span>
-              {"\n"}
-              {" "}
-              <span className="text-zcash-gold"> data-theme</span>=
-              <span className="text-green-400">
-                "{config.theme}"
-              </span>
-              {"\n"}
-              {" "}
-              <span className="text-zcash-gold"> data-api-base</span>=
-              <span className="text-green-400">
-                "{config.apiBase}"
-              </span>
-              {"\n"}
-              {" "}
-              <span className="text-zcash-gold"> data-target</span>=
-              <span className="text-green-400">
-                "{config.target}"
-              </span>
-              {"\n"}
-              {" "}
-              <span className="text-pink-400">&gt;&lt;/script&gt;</span>
+              {"\n"} <span className="text-zcash-gold"> data-theme</span>=
+              <span className="text-green-400">"{config.theme}"</span>
+              {"\n"} <span className="text-zcash-gold"> data-api-base</span>=
+              <span className="text-green-400">"{config.apiBase}"</span>
+              {"\n"} <span className="text-zcash-gold"> data-target</span>=
+              <span className="text-green-400">"{config.target}"</span>
+              {"\n"} <span className="text-zcash-gold"> data-disabled</span>=
+              <span className="text-green-400">"{disabled}"</span>
+              {"\n"} <span className="text-pink-400">&gt;&lt;/script&gt;</span>
             </code>
           </pre>
         </div>

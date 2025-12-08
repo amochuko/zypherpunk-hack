@@ -11,6 +11,7 @@ interface GeneratedConfig {
   apiBase: string;
   theme: string;
   target: string;
+  disabled: boolean;
 }
 
 const Index = () => {
@@ -22,6 +23,7 @@ const Index = () => {
     apiBase: "",
     theme: "",
     target: import.meta.env.VITE_PWZ_WIDGET_CONTAINER,
+    disabled: true
   });
 
   const handleGenerated = (config: GeneratedConfig) => {
@@ -112,6 +114,7 @@ const Index = () => {
                 apiBase: generatedConfig.apiBase,
                 theme: generatedConfig.theme,
                 target: generatedConfig.target,
+                disabled: generatedConfig.disabled,
               }}
             />
           </div>

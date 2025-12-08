@@ -8,6 +8,8 @@ interface GeneratedConfig {
   qrData?: unknown;
   apiBase: string;
   theme: string;
+  target: string;
+  disabled: boolean;
 }
 
 interface Props {
@@ -22,6 +24,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
   const [priceDataSource, setPriceDataSource] = useState("");
   const [currency, setCurrency] = useState("usd");
   const [label, setLabel] = useState("");
+  // const [disabled, setDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,15 +34,17 @@ export default function GeneratorForm({ onGenerated }: Props) {
     try {
       setPriceDataSource("");
 
-      const res = await fetch(`${BASE_URL}/convert`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: parseFloat(amount),
-          from: currency,
-          to: "zec",
-        }),
-      });
+      const res = import.meta.env.DEV
+        ? { json: () => ({ amount: 350, source: "diadata.org" }), ok: true }
+        : await fetch(`${BASE_URL}/convert`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: parseFloat(amount),
+              from: currency,
+              to: "zec",
+            }),
+          });
 
       if (!res.ok) {
         throw new Error("PriceConversion: Price conversion failed!");
@@ -68,6 +73,8 @@ export default function GeneratorForm({ onGenerated }: Props) {
         qrData,
         apiBase: import.meta.env.VITE_API_BASE_URL,
         theme,
+        target: import.meta.env.VITE_PWZ_WIDGET_CONTAINER,
+        disabled: data.amount < 0,
       });
     } catch (err) {
       console.error(err);
