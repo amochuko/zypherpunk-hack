@@ -92,7 +92,7 @@ const Index = () => {
           </div>
 
           {/* Widget Demo Section */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 mt-24">
             <h3
               className={`text-2xl font-semibold mb-2 ${theme === "dark" ? "text-widget-dark-text" : "text-widget-light-text"}`}
             >
@@ -120,7 +120,7 @@ const Index = () => {
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 mt-24">
             {[
               {
                 icon: "🎨",
