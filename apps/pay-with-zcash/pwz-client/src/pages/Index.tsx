@@ -1,10 +1,9 @@
 import ButtonPreview from "@/components/ButtonPreview";
 import CodeSnippet from "@/components/CodeSnippet";
 import GeneratorForm from "@/components/GeneratorForm";
-import { WidgetLivePreview } from "@/components/WidgetLivePreview";
 import { useState } from "react";
 
-interface GeneratedConfig {
+export interface GeneratedConfig {
   address: string;
   amount: number;
   label: string;
@@ -83,39 +82,8 @@ const Index = () => {
           {/* Generator Section */}
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
             <GeneratorForm onGenerated={handleGenerated} />
-            {/* <ButtonPreview config={generatedConfig} /> */}
-
             {/* Widget Demo Section */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-widget-light-surface to-white dark:from-widget-dark-surface dark:to-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border shadow-xl">
-
-            <div className="text-center mb-8 space-y-12">
-              <div>
-                <h3
-                  className={`text-2xl font-semibold mb-2 ${theme === "dark" ? "text-widget-dark-text" : "text-widget-light-text"}`}
-                >
-                  Live Widget Demo
-                </h3>
-                <p
-                  className={`text-sm ${theme === "dark" ? "text-widget-dark-muted" : "text-widget-light-muted"}`}
-                >
-                  Click the button below to see the payment modal in action
-                </p>
-              </div>
-              <div className={`flex justify-center mb-16`}>
-                <WidgetLivePreview
-                  config={{
-                    address: generatedConfig.address,
-                    amount: Number(generatedConfig.amount),
-                    label: generatedConfig.label,
-                    apiBase: generatedConfig.apiBase,
-                    theme: generatedConfig.theme,
-                    target: generatedConfig.target,
-                    disabled: generatedConfig.disabled,
-                  }}
-                />
-              </div>
-            </div>
-            </div>
+            <ButtonPreview config={generatedConfig} />
           </div>
 
           {/* Code Snippet Section */}
