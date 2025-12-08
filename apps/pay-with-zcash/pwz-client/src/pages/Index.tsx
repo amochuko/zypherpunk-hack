@@ -1,7 +1,7 @@
 import ButtonPreview from "@/components/ButtonPreview";
 import CodeSnippet from "@/components/CodeSnippet";
 import GeneratorForm from "@/components/GeneratorForm";
-import { ZcashPaymentWidget } from "@/components/ZcashPaymentWidget";
+import { WidgetLivePreview } from "@/components/WidgetLivePreview";
 import { useState } from "react";
 
 interface GeneratedConfig {
@@ -104,12 +104,15 @@ const Index = () => {
           </div>
 
           <div className={`flex justify-center mb-16`}>
-            <ZcashPaymentWidget
-              address={generatedConfig.address}
-              amount={String(generatedConfig.amount)}
-              label="Donate to Open Source"
-              theme={theme}
-              // memo="Thank you for your support!"
+            <WidgetLivePreview
+              config={{
+                address: generatedConfig.address,
+                amount: Number(generatedConfig.amount),
+                label: generatedConfig.label,
+                apiBase: generatedConfig.apiBase,
+                theme: generatedConfig.theme,
+                target: generatedConfig.target,
+              }}
             />
           </div>
 
