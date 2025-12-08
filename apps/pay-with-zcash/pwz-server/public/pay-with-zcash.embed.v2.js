@@ -14,7 +14,7 @@
   const style = document.createElement("style");
   style.textContent = `
     .zwg-btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:linear-gradient(135deg,#F4B728 0%,#E5A420 100%);color:#1a1a1a;font:600 15px/1 system-ui,-apple-system,sans-serif;border:0;border-radius:14px;cursor:pointer;box-shadow:0 4px 24px -4px rgba(244,183,40,0.5),inset 0 1px 0 rgba(255,255,255,0.3);transition:all .2s ease;overflow:hidden}
-    .zwg-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px -4px rgba(244,183,40,0.6),inset 0 1px 0 rgba(255,255,255,0.3)}
+    .zwg-btn:hover{transform:translateY(0);box-shadow:0 8px 32px -4px rgba(244,183,40,0.6),inset 0 1px 0 rgba(255,255,255,0.3)}
     .zwg-btn:active{transform:translateY(0) scale(.98)}
     .zwg-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);transform:translateX(-100%);transition:transform .6s}
     .zwg-btn:hover::after{transform:translateX(100%)}
