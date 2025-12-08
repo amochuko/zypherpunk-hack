@@ -23,7 +23,7 @@ const Index = () => {
     apiBase: "",
     theme: "",
     target: import.meta.env.VITE_PWZ_WIDGET_CONTAINER,
-    disabled: true
+    disabled: true,
   });
 
   const handleGenerated = (config: GeneratedConfig) => {
@@ -162,6 +162,10 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      <footer className="flex justify-center items-center py-4 mt-24 text-slate-500 text-sm">
+        &copy; {new Date().getFullYear()}
+      </footer>
     </div>
   );
 };
