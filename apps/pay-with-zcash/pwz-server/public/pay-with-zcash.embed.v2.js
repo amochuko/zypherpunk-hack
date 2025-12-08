@@ -294,7 +294,7 @@
         label: script.dataset.label,
         theme: script.dataset.theme,
         memo: script.dataset.memo,
-        apiBase: script.dataset.api || DEFAULT_API_BASE,
+        apiBase: script.dataset.apiBase || DEFAULT_API_BASE,
         disabled: script.dataset.disabled,
       });
 
