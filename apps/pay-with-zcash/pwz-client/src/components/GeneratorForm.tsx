@@ -6,8 +6,10 @@ interface GeneratedConfig {
   amount: number;
   label: string;
   qrData?: unknown;
-  apiBase:string;
-  theme:string;
+  apiBase: string;
+  theme: string;
+  target: string;
+  disabled: boolean;
 }
 
 interface Props {
@@ -22,6 +24,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
   const [priceDataSource, setPriceDataSource] = useState("");
   const [currency, setCurrency] = useState("usd");
   const [label, setLabel] = useState("");
+  // const [disabled, setDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,18 +34,28 @@ export default function GeneratorForm({ onGenerated }: Props) {
     try {
       setPriceDataSource("");
 
-      const res = await fetch(`${BASE_URL}/convert`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: parseFloat(amount),
-          from: currency,
-          to: "zec",
-        }),
-      });
+      const res = import.meta.env.DEV
+        ? { json: () => ({ amount: 350, source: "diadata.org" }), ok: true }
+        : await fetch(`${BASE_URL}/convert`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: parseFloat(amount),
+              from: currency,
+              to: "zec",
+            }),
+          });
+
+      if (!res.ok) {
+        throw new Error("PriceConversion: Price conversion failed!");
+      }
 
       const data = await res.json();
-      
+
+      if (!data.amount) {
+        throw new Error("PriceConversion: Invalid price data");
+      }
+
       setPriceDataSource(data.source);
 
       const qrRes = await fetch(`${BASE_URL}/qr`, {
@@ -59,7 +72,9 @@ export default function GeneratorForm({ onGenerated }: Props) {
         label,
         qrData,
         apiBase: import.meta.env.VITE_API_BASE_URL,
-        theme
+        theme,
+        target: import.meta.env.VITE_PWZ_WIDGET_CONTAINER,
+        disabled: data.amount < 0,
       });
     } catch (err) {
       console.error(err);
@@ -106,7 +121,8 @@ export default function GeneratorForm({ onGenerated }: Props) {
               onChange={(e) => setAddress(e.target.value)}
               required
               placeholder="u1abc123xyz..."
-              className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 
+              ring-1 ring-zcash-gold/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
             />
           </div>
 
@@ -123,7 +139,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
                 onChange={(e) => setAmount(e.target.value)}
                 required
                 placeholder="0.00"
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
+                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 ring-1 ring-zcash-gold/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
               />
             </div>
 
@@ -134,7 +150,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200 cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text ring-1 ring-zcash-gold/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200 cursor-pointer"
               >
                 <option value="usd">USD</option>
                 <option value="zec">ZEC</option>
@@ -156,7 +172,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 placeholder="e.g. Buy T-Shirt"
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
+                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text placeholder:text-widget-light-muted/50 dark:placeholder:text-widget-dark-muted/50 ring-1 ring-zcash-gold/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200"
               />
             </div>
 
@@ -167,7 +183,7 @@ export default function GeneratorForm({ onGenerated }: Props) {
               <select
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200 cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-widget-dark-bg border border-widget-light-border dark:border-widget-dark-border text-widget-light-text dark:text-widget-dark-text ring-1 ring-zcash-gold/50 focus:outline-none focus:ring-2 focus:ring-zcash-gold/50 focus:border-zcash-gold transition-all duration-200 cursor-pointer"
               >
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>

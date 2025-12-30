@@ -21,4 +21,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  preview: {
+    allowedHosts: ["zypherpunk-hack-pwz-client.onrender.com"],
+  },
 }));

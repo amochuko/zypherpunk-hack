@@ -1,15 +1,16 @@
 import ButtonPreview from "@/components/ButtonPreview";
 import CodeSnippet from "@/components/CodeSnippet";
 import GeneratorForm from "@/components/GeneratorForm";
-import { ZcashPaymentWidget } from "@/components/ZcashPaymentWidget";
 import { useState } from "react";
 
-interface GeneratedConfig {
+export interface GeneratedConfig {
   address: string;
   amount: number;
   label: string;
   apiBase: string;
   theme: string;
+  target: string;
+  disabled: boolean;
 }
 
 const Index = () => {
@@ -20,6 +21,8 @@ const Index = () => {
     label: "",
     apiBase: "",
     theme: "",
+    target: import.meta.env.VITE_PWZ_WIDGET_CONTAINER,
+    disabled: true,
   });
 
   const handleGenerated = (config: GeneratedConfig) => {
@@ -79,6 +82,7 @@ const Index = () => {
           {/* Generator Section */}
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
             <GeneratorForm onGenerated={handleGenerated} />
+            {/* Widget Demo Section */}
             <ButtonPreview config={generatedConfig} />
           </div>
 
@@ -87,32 +91,8 @@ const Index = () => {
             <CodeSnippet config={generatedConfig} />
           </div>
 
-          {/* Widget Demo Section */}
-          <div className="text-center mb-8">
-            <h3
-              className={`text-2xl font-semibold mb-2 ${theme === "dark" ? "text-widget-dark-text" : "text-widget-light-text"}`}
-            >
-              Live Widget Demo
-            </h3>
-            <p
-              className={`text-sm ${theme === "dark" ? "text-widget-dark-muted" : "text-widget-light-muted"}`}
-            >
-              Click the button below to see the payment modal in action
-            </p>
-          </div>
-
-          <div className={`flex justify-center mb-16`}>
-            <ZcashPaymentWidget
-              address={generatedConfig.address}
-              amount={String(generatedConfig.amount)}
-              label="Donate to Open Source"
-              theme={theme}
-              // memo="Thank you for your support!"
-            />
-          </div>
-
           {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 mt-24">
             {[
               {
                 icon: "🎨",
@@ -154,6 +134,10 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      <footer className="flex justify-center items-center py-4 mt-24 text-slate-500 text-sm">
+        &copy; {new Date().getFullYear()}
+      </footer>
     </div>
   );
 };

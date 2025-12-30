@@ -1,12 +1,39 @@
 import axios from "axios";
 
+// Updated to:
+// - Avoids API throttling
+// - Reduces render cold-start failures
+// - Makes /convert ultra-stable
+// - Prevents frontend crashes
+
+let lastKnownPrice = 0;
+let lastUpdated = 0;
+let src = "";
+
 export async function getZecPrice(
   url: string,
   source = ""
 ): Promise<{ price: number; source: string }> {
-  const res = await axios.get(url);
+  const now = Date.now();
 
-  const { Price, Source } = res.data;
+  // Simple 60s cache to avaoid multiply API hit
+  if (now - lastUpdated < 60000 && lastKnownPrice > 0) {
+    return { price: lastKnownPrice, source: src };
+  }
 
-  return { price: Number(Price) ?? 0, source: Source ?? source };
+  try {
+    const res = await axios.get(url);
+    const { Price, Source } = res.data;
+
+    if (Price > 0) {
+      lastKnownPrice = Number(Price);
+      lastUpdated = now;
+      src = Source;
+    }
+
+    return { price: lastKnownPrice, source: src ?? source };
+  } catch (err) {
+    console.error("ZEC price fetch failed:", err);
+    return { price: lastKnownPrice || 0, source: src || source };
+  }
 }
